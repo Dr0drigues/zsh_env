@@ -1,4 +1,16 @@
 # =======================================================
+# ZSH CONFIG & SOURCE
+# =======================================================
+
+# Raccourci pour sourcer un fichier (ex: s .env)
+# Pas besoin de $1, l'alias fait juste un remplacement de texte
+alias s='source'
+
+# Rechargement rapide de la configuration
+# Avec un petit feedback visuel pour confirmer que ça a marché
+alias ss='source $HOME/.zshrc && echo "Zsh config reloaded"'
+
+# =======================================================
 # NAVIGATION & LISTING
 # =======================================================
 
@@ -46,4 +58,8 @@ alias please='sudo $(fc -ln -1)'
 # Utilise votre fonction extract si définie, sinon fallback
 if type extract &> /dev/null; then
     alias x='extract'
+fi
+
+if command -v bat &> /dev/null; then
+    alias cat='bat'
 fi

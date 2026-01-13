@@ -14,12 +14,19 @@ if [ -z "$ZSH_ENV_DIR" ]; then
     export ZSH_ENV_DIR="$HOME/.zsh_env" # Valeur par défaut de sécurité
 fi
 
+# Load Secrets (Ignored by git)
+if [ -f "$HOME/.secrets" ]; then
+    source "$HOME/.secrets"
+fi
+
 # Load variables (Critique : Doit être chargé en premier)
 if [ -f "$ZSH_ENV_DIR/variables.zsh" ]; then
     source "$ZSH_ENV_DIR/variables.zsh"
 else
     echo "ERROR: variables.zsh not found in $ZSH_ENV_DIR"
 fi
+
+export PATH="$SCRIPTS_DIR:$PATH"
 
 # Load functions
 if [ -f "$ZSH_ENV_DIR/functions.zsh" ]; then

@@ -1,10 +1,11 @@
 export WORK_DIR="$HOME/work"
-export SCRIPTS_DIR="./scripts"
+export SCRIPTS_DIR="$ZSH_ENV_DIR/scripts"
 
 # Liste des dossiers critiques à garantir
 required_dirs=(
     "$WORK_DIR"
     "$HOME/.config"
+    "$SCRIPTS_DIR"
 )
 
 for dir in $required_dirs; do
