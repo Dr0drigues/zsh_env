@@ -63,3 +63,12 @@ fi
 if command -v bat &> /dev/null; then
     alias cat='bat'
 fi
+
+# Sécurité suppression
+if command -v trash &> /dev/null; then
+    alias rm='trash'
+    alias rmi='/bin/rm -i'
+else
+    # Si pas de trash, on force la confirmation pour éviter les accidents
+    alias rm='rm -i'
+fi
