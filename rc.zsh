@@ -1,23 +1,43 @@
-eval "$(starship init zsh)"
+# Init prompt (Starship)
+# Vérification stricte avant le eval
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+else
+    # Fallback minimaliste si starship absent
+    # Affiche: [user@host dir]$ 
+    PROMPT='%n@%m %1~ %# '
+fi
 
-# Init
-## Load variables ##
+# Init Environment
+if [ -z "$ZSH_ENV_DIR" ]; then
+    echo "WARNING: ZSH_ENV_DIR is not set. Assuming default location."
+    export ZSH_ENV_DIR="$HOME/.zsh_env" # Valeur par défaut de sécurité
+fi
+
+# Load variables (Critique : Doit être chargé en premier)
 if [ -f "$ZSH_ENV_DIR/variables.zsh" ]; then
     source "$ZSH_ENV_DIR/variables.zsh"
+else
+    echo "ERROR: variables.zsh not found in $ZSH_ENV_DIR"
 fi
-## Load aliases ##
-if [ -f "$ZSH_ENV_DIR/aliases.zsh" ]; then
-    source "$ZSH_ENV_DIR/aliases.zsh"
-fi
-## Load functions ##
+
+# Load functions
 if [ -f "$ZSH_ENV_DIR/functions.zsh" ]; then
     source "$ZSH_ENV_DIR/functions.zsh"
 fi
 
-# PATH
-## Always prepend new folders to :$PATH
-export PATH="$SCRIPTS_DIR:$PATH"
+# Load aliases
+if [ -f "$ZSH_ENV_DIR/aliases.zsh" ]; then
+    source "$ZSH_ENV_DIR/aliases.zsh"
+fi
 
-# THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+# SDKMAN (Optimisé et Silencieux)
+# On vérifie d'abord que le dossier existe avant de tester le fichier
 export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+if [ -d "$SDKMAN_DIR" ] && [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]; then
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
+fi
+
+# PATH Final (Déduplication)
+# Empêche d'avoir le PATH qui grandit à l'infini si on reload le .zshrc
+typeset -U PATH

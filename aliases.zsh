@@ -1,45 +1,49 @@
-# cd
+# =======================================================
+# NAVIGATION & LISTING
+# =======================================================
+
+# 1. Protection du remplacement de 'ls' par 'eza'
+# On utilise 'command -v' qui est POSIX compliant et plus rapide que 'which'
+if command -v eza &> /dev/null; then
+    alias ls='eza --color=auto'
+    alias l="ls -lah"
+    alias ll='ls -la'
+    alias l.='ls -d .* --color=auto'
+else
+    # Fallback si eza n'est pas là
+    alias l='ls -lah'
+    alias ll='ls -la'
+fi
+
+# 2. Protection des alias Git
+# Vérifions que git est installé (rare qu'il ne le soit pas, mais sait-on jamais)
+if command -v git &> /dev/null; then
+    alias gst='git status'
+    alias gl='git fetch --all; git pull'
+    alias ga='git add'
+    alias gp='git push'
+    alias gc='git commit -v' # -v est une bonne pratique pour relire son code avant de commit
+    alias gld='git log --oneline --decorate --graph --all'
+    alias git-clean-branches="git branch --merged | grep -v '\*' | grep -v 'master' | grep -v 'main' | grep -v 'dev' | xargs -n 1 git branch -d"
+fi
+
+# =======================================================
+# SYSTEM & UTILS
+# =======================================================
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+    alias cd="z"
+fi
+
 alias ..='cd ..'
-
-# clear
 alias c='clear'
-
-# ls / replaced by eza
-## Colorize the ls output ##
-alias ls='eza --color=auto'
-
-alias l="ls -lah"
-
-## Use a long listing format ##
-alias ll='ls -la'
-
-## Show hidden files ##
-alias l.='ls -d .* --color=auto'
-
-# history
 alias h='history'
 
-# tar
-## unzip a tar file ##
-alias untar='tar -zxvf $1'
+# Protection 'sudo' (alias please)
+alias please='sudo $(fc -ln -1)'
 
-## zip argument onto a tar ##
-alias tar='tar -czvf $1'
-
-# git
-alias gst='git status'
-alias gl='git fetch --all; git pull'
-alias ga='git add $1'
-alias gp='git push'
-alias gpup='git push -u $1'
-alias gc='git commit $1'
-alias gld='git log –oneline –decorate –graph –all' 
-
-# source
-alias s="source $1"
-alias ss="source $HOME/.zshrc"
-
-# Misc
-## Re-run last command using sudo ##
-alias please='/usr/bin/sudo $(history -p !!)'
-
+# Gestion intelligente de l'extraction (Tar)
+# Utilise votre fonction extract si définie, sinon fallback
+if type extract &> /dev/null; then
+    alias x='extract'
+fi
