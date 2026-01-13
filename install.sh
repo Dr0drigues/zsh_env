@@ -125,6 +125,8 @@ install_tool "starship" "starship"  ""          ""     # Souvent absent des vieu
 install_tool "zoxide"   "zoxide"    "zoxide"    "zoxide"
 install_tool "fzf"      "fzf"       "fzf"       "fzf"
 install_tool "bat"      "bat"       "bat"       "bat"  # "cat" avec des ailes
+# Note: Sur Linux (trash-cli), la commande est souvent 'trash-put'
+install_tool "trash"    "trash"     "trash-cli" "trash-cli"
 
 # --- Installation manuelle pour les outils souvent absents d'APT/DNF ---
 
