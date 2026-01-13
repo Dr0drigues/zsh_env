@@ -1,8 +1,6 @@
 #!/bin/bash
 # ==============================================================================
 # Script : clone-projects.sh
-# Version : 3.0 (Ultimate - Progress Bar & Help)
-# Auteur : Senior Dev
 # ==============================================================================
 
 # --- Configuration ---
