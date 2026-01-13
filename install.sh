@@ -2,7 +2,6 @@
 # ==============================================================================
 # Script : install.sh
 # Description : Bootstrapping de l'environnement de développement (Zsh, Tools)
-# Auteur : Concepteur & Développeur Sénior
 # Support : MacOS (Homebrew), Debian/Ubuntu (apt), Fedora (dnf)
 # ==============================================================================
 
