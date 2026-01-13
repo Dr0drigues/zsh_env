@@ -31,6 +31,7 @@ alias gst='git status'
 alias gl='git fetch --all; git pull'
 alias ga='git add $1'
 alias gp='git push'
+alias gpup='git push -u $1'
 alias gc='git commit $1'
 alias gld='git log –oneline –decorate –graph –all' 
 
