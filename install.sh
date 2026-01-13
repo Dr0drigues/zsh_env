@@ -125,6 +125,7 @@ install_tool "starship" "starship"  ""          ""     # Souvent absent des vieu
 install_tool "zoxide"   "zoxide"    "zoxide"    "zoxide"
 install_tool "fzf"      "fzf"       "fzf"       "fzf"
 install_tool "bat"      "bat"       "bat"       "bat"  # "cat" avec des ailes
+install_tool "nu"       "nushell"   "nushell"   "nushell"
 # Note: Sur Linux (trash-cli), la commande est souvent 'trash-put'
 install_tool "trash"    "trash"     "trash-cli" "trash-cli"
 
@@ -160,6 +161,20 @@ else
             log_error "Échec de l'installation de NVM."
         fi
     fi
+fi
+
+# Nushell (Si non trouvé via gestionnaire de paquets)
+if ! command -v nu &> /dev/null; then
+    log_info "Installation manuelle de Nushell..."
+    # On télécharge la dernière release via GitHub (binaire statique)
+    curl -s https://api.github.com/repos/nushell/nushell/releases/latest | \
+    jq -r ".assets[] | select(.name | test(\"x86_64-unknown-linux-musl.tar.gz\")) | .browser_download_url" | \
+    xargs curl -L -o /tmp/nu.tar.gz
+    
+    tar -xzf /tmp/nu.tar.gz -C /tmp
+    # Déplacement du binaire (suppose sudo dispo)
+    sudo mv /tmp/nu-*-linux-musl/nu /usr/local/bin/
+    log_success "Nushell installé."
 fi
 
 # --- Configuration Automatique du .zshrc ---
