@@ -18,6 +18,31 @@ log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# --- Gestion des Arguments ---
+INTERACTIVE=true
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            echo -e "${BOLD}USAGE${NC}"
+            echo "    $0 [OPTIONS]"
+            echo ""
+            echo -e "${BOLD}OPTIONS${NC}"
+            echo "    --default     Installation sans configuration interactive"
+            echo "    -h, --help    Affiche cette aide"
+            exit 0
+            ;;
+        --default)
+            INTERACTIVE=false
+            shift
+            ;;
+        *)
+            log_error "Option inconnue: $1"
+            exit 1
+            ;;
+    esac
+done
+
 # --- Détection OS & Package Manager ---
 OS="$(uname -s)"
 PKG_MANAGER=""
@@ -229,5 +254,83 @@ if [ ! -d "$SCRIPTS_DIR" ]; then
     mkdir -p "$SCRIPTS_DIR"
 fi
 
-echo -e "\n${BOLD}=== Installation Terminée ===${NC}"
-echo -e "Redémarrez votre terminal ou lancez : ${BOLD}source ~/.zshrc${NC}"
+# --- Configuration Interactive des Modules ---
+echo ""
+echo -e "${BOLD}=== Configuration des Modules ===${NC}"
+
+if [ "$INTERACTIVE" = true ]; then
+    echo -e "Choisissez les modules a activer (Entree = valeur par defaut)\n"
+
+    # Fonction pour poser une question oui/non
+    ask_module() {
+        local module_name="$1"
+        local module_desc="$2"
+        local default="$3"
+
+        local prompt_default="O/n"
+        [ "$default" = "false" ] && prompt_default="o/N"
+
+        printf "  ${CYAN}%s${NC} - %s [%s]: " "$module_name" "$module_desc" "$prompt_default"
+        read -r answer
+
+        if [ -z "$answer" ]; then
+            echo "$default"
+        elif [[ "$answer" =~ ^[oOyY]$ ]]; then
+            echo "true"
+        else
+            echo "false"
+        fi
+    }
+
+    # Poser les questions
+    MODULE_GITLAB=$(ask_module "GitLab" "Scripts et fonctions GitLab (trigger-jobs, clone-projects)" "true")
+    MODULE_DOCKER=$(ask_module "Docker" "Utilitaires Docker (dex, etc.)" "true")
+    MODULE_NVM=$(ask_module "NVM" "Auto-switch Node.js via .nvmrc" "true")
+    MODULE_NUSHELL=$(ask_module "Nushell" "Integration Nushell (aliases nu)" "true")
+else
+    log_info "Mode --default : tous les modules actives"
+    MODULE_GITLAB="true"
+    MODULE_DOCKER="true"
+    MODULE_NVM="true"
+    MODULE_NUSHELL="true"
+fi
+
+# Generer le fichier config.zsh
+CONFIG_FILE="$TARGET_DIR/config.zsh"
+echo ""
+log_info "Generation de $CONFIG_FILE..."
+
+cat > "$CONFIG_FILE" << EOF
+# ==============================================================================
+# Configuration ZSH_ENV - Generee par install.sh
+# ==============================================================================
+# Modifiez ce fichier pour activer/desactiver des modules
+# Rechargez avec: ss (ou source ~/.zshrc)
+# ==============================================================================
+
+# Modules (true = active, false = desactive)
+ZSH_ENV_MODULE_GITLAB=$MODULE_GITLAB
+ZSH_ENV_MODULE_DOCKER=$MODULE_DOCKER
+ZSH_ENV_MODULE_NVM=$MODULE_NVM
+ZSH_ENV_MODULE_NUSHELL=$MODULE_NUSHELL
+EOF
+
+log_success "Configuration sauvegardee"
+
+# Resume
+echo ""
+echo -e "${CYAN}Modules actives:${NC}"
+[ "$MODULE_GITLAB" = "true" ] && echo -e "  ${GREEN}✓${NC} GitLab"
+[ "$MODULE_DOCKER" = "true" ] && echo -e "  ${GREEN}✓${NC} Docker"
+[ "$MODULE_NVM" = "true" ] && echo -e "  ${GREEN}✓${NC} NVM"
+[ "$MODULE_NUSHELL" = "true" ] && echo -e "  ${GREEN}✓${NC} Nushell"
+
+echo -e "${CYAN}Modules desactives:${NC}"
+[ "$MODULE_GITLAB" = "false" ] && echo -e "  ${RED}✗${NC} GitLab"
+[ "$MODULE_DOCKER" = "false" ] && echo -e "  ${RED}✗${NC} Docker"
+[ "$MODULE_NVM" = "false" ] && echo -e "  ${RED}✗${NC} NVM"
+[ "$MODULE_NUSHELL" = "false" ] && echo -e "  ${RED}✗${NC} Nushell"
+
+echo -e "\n${BOLD}=== Installation Terminee ===${NC}"
+echo -e "Redemarrez votre terminal ou lancez : ${BOLD}source ~/.zshrc${NC}"
+echo -e "Pour modifier les modules : ${BOLD}nano ~/.zsh_env/config.zsh${NC}"
