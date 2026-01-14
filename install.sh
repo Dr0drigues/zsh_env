@@ -271,7 +271,8 @@ if [ "$INTERACTIVE" = true ]; then
         local prompt_default="O/n"
         [ "$default" = "false" ] && prompt_default="o/N"
 
-        printf "  ${CYAN}%s${NC} - %s [%s]: " "$module_name" "$module_desc" "$prompt_default"
+        # Afficher sur stderr pour ne pas etre capture par $()
+        printf "  ${CYAN}%s${NC} - %s [%s]: " "$module_name" "$module_desc" "$prompt_default" >&2
         read -r answer
 
         if [ -z "$answer" ]; then
