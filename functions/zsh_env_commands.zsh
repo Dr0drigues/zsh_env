@@ -104,9 +104,16 @@ zsh-env-completion-add() {
     fi
 
     # Ajouter la completion au fichier
-    # On remplace la ligne de fermeture du tableau par notre nouvelle entree + fermeture
-    sed -i.bak 's/^)$/    "'"$name:$cmd"'"\n)/' "$config_file"
-    rm -f "$config_file.bak"
+    # On insère avant la parenthèse fermante
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS : sed -i nécessite une extension explicite
+        sed -i '' '/^)$/i\
+    "'"$name:$cmd"'"
+' "$config_file"
+    else
+        # Linux
+        sed -i '/^)$/i\    "'"$name:$cmd"'"' "$config_file"
+    fi
 
     echo -e "${_zsh_cmd_green}[OK]${_zsh_cmd_nc} Completion '$name' ajoutee."
     echo -e "Lancez ${_zsh_cmd_bold}zsh-env-completions${_zsh_cmd_nc} pour la charger."
@@ -131,8 +138,11 @@ zsh-env-completion-remove() {
     fi
 
     # Supprimer la ligne contenant cette completion
-    sed -i.bak "/\"$name:/d" "$config_file"
-    rm -f "$config_file.bak"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "/\"$name:/d" "$config_file"
+    else
+        sed -i "/\"$name:/d" "$config_file"
+    fi
 
     echo -e "${_zsh_cmd_green}[OK]${_zsh_cmd_nc} Completion '$name' supprimee."
 }
@@ -203,9 +213,9 @@ zsh-env-completions() {
         ((loaded++))
     fi
 
-    # npm
+    # npm (eval au lieu de source pour éviter l'erreur _arguments)
     if command -v npm &> /dev/null; then
-        source <(npm completion 2>/dev/null)
+        eval "$(npm completion 2>/dev/null)" 2>/dev/null
         echo -e "  ${_zsh_cmd_green}✓${_zsh_cmd_nc} npm"
         ((loaded++))
     fi
@@ -239,7 +249,11 @@ zsh-env-completions() {
             local cmd="${entry#*:}"
 
             if command -v "$name" &> /dev/null; then
-                if eval "source <($cmd)" 2>/dev/null; then
+                # Capture la sortie de la commande puis eval avec stderr supprimé
+                local comp_script
+                comp_script=$($cmd 2>/dev/null)
+                if [ -n "$comp_script" ]; then
+                    { eval "$comp_script"; } 2>/dev/null
                     echo -e "  ${_zsh_cmd_green}✓${_zsh_cmd_nc} $name ${_zsh_cmd_cyan}(custom)${_zsh_cmd_nc}"
                     ((loaded++))
                     ((custom_loaded++))
