@@ -62,6 +62,11 @@ if [ -f "$ZSH_ENV_DIR/aliases.zsh" ]; then
     source "$ZSH_ENV_DIR/aliases.zsh"
 fi
 
+# Load plugins
+if [ -f "$ZSH_ENV_DIR/plugins.zsh" ]; then
+    source "$ZSH_ENV_DIR/plugins.zsh"
+fi
+
 # Load local aliases (non versionnes)
 if [ -f "$ZSH_ENV_DIR/aliases.local.zsh" ]; then
     source "$ZSH_ENV_DIR/aliases.local.zsh"
