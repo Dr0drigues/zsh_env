@@ -77,6 +77,67 @@ zsh-env-list() {
 }
 
 # ==============================================================================
+# zsh-env-completion-add : Ajouter une completion personnalisee
+# ==============================================================================
+zsh-env-completion-add() {
+    local name="$1"
+    local cmd="$2"
+
+    if [ -z "$name" ] || [ -z "$cmd" ]; then
+        echo -e "${_zsh_cmd_bold}Usage:${_zsh_cmd_nc} zsh-env-completion-add <nom> <commande>"
+        echo ""
+        echo -e "${_zsh_cmd_cyan}Exemples:${_zsh_cmd_nc}"
+        echo "  zsh-env-completion-add bun \"bun completions\""
+        echo "  zsh-env-completion-add deno \"deno completions zsh\""
+        echo "  zsh-env-completion-add turbo \"turbo completion zsh\""
+        echo ""
+        echo -e "Les completions sont stockees dans: ${_zsh_cmd_bold}~/.zsh_env/completions.zsh${_zsh_cmd_nc}"
+        return 1
+    fi
+
+    local config_file="$ZSH_ENV_DIR/completions.zsh"
+
+    # Verifier si la completion existe deja
+    if grep -q "\"$name:" "$config_file" 2>/dev/null; then
+        echo -e "${_zsh_cmd_yellow}[WARN]${_zsh_cmd_nc} La completion '$name' existe deja."
+        return 1
+    fi
+
+    # Ajouter la completion au fichier
+    # On remplace la ligne de fermeture du tableau par notre nouvelle entree + fermeture
+    sed -i.bak 's/^)$/    "'"$name:$cmd"'"\n)/' "$config_file"
+    rm -f "$config_file.bak"
+
+    echo -e "${_zsh_cmd_green}[OK]${_zsh_cmd_nc} Completion '$name' ajoutee."
+    echo -e "Lancez ${_zsh_cmd_bold}zsh-env-completions${_zsh_cmd_nc} pour la charger."
+}
+
+# ==============================================================================
+# zsh-env-completion-remove : Supprimer une completion personnalisee
+# ==============================================================================
+zsh-env-completion-remove() {
+    local name="$1"
+
+    if [ -z "$name" ]; then
+        echo -e "${_zsh_cmd_bold}Usage:${_zsh_cmd_nc} zsh-env-completion-remove <nom>"
+        return 1
+    fi
+
+    local config_file="$ZSH_ENV_DIR/completions.zsh"
+
+    if ! grep -q "\"$name:" "$config_file" 2>/dev/null; then
+        echo -e "${_zsh_cmd_yellow}[WARN]${_zsh_cmd_nc} La completion '$name' n'existe pas."
+        return 1
+    fi
+
+    # Supprimer la ligne contenant cette completion
+    sed -i.bak "/\"$name:/d" "$config_file"
+    rm -f "$config_file.bak"
+
+    echo -e "${_zsh_cmd_green}[OK]${_zsh_cmd_nc} Completion '$name' supprimee."
+}
+
+# ==============================================================================
 # zsh-env-completions : Charger les auto-completions
 # ==============================================================================
 zsh-env-completions() {
@@ -164,6 +225,36 @@ zsh-env-completions() {
         ((loaded++))
     fi
 
+    # Completions personnalisees
+    local custom_file="$ZSH_ENV_DIR/completions.zsh"
+    if [ -f "$custom_file" ]; then
+        source "$custom_file"
+
+        local custom_loaded=0
+        for entry in "${_ZSH_ENV_CUSTOM_COMPLETIONS[@]}"; do
+            # Ignorer les lignes vides ou commentees
+            [[ -z "$entry" || "$entry" == \#* ]] && continue
+
+            local name="${entry%%:*}"
+            local cmd="${entry#*:}"
+
+            if command -v "$name" &> /dev/null; then
+                if eval "source <($cmd)" 2>/dev/null; then
+                    echo -e "  ${_zsh_cmd_green}✓${_zsh_cmd_nc} $name ${_zsh_cmd_cyan}(custom)${_zsh_cmd_nc}"
+                    ((loaded++))
+                    ((custom_loaded++))
+                else
+                    echo -e "  ${_zsh_cmd_red}✗${_zsh_cmd_nc} $name ${_zsh_cmd_yellow}(erreur)${_zsh_cmd_nc}"
+                fi
+            fi
+        done
+
+        if [ $custom_loaded -gt 0 ]; then
+            echo ""
+            echo -e "${_zsh_cmd_cyan}$custom_loaded completion(s) personnalisee(s)${_zsh_cmd_nc}"
+        fi
+    fi
+
     echo ""
     echo -e "${_zsh_cmd_bold}$loaded completions chargees${_zsh_cmd_nc}"
 
@@ -184,6 +275,13 @@ ${_zsh_cmd_cyan}zsh-env-list${_zsh_cmd_nc}
 ${_zsh_cmd_cyan}zsh-env-completions${_zsh_cmd_nc}
     Charge les auto-completions pour les outils disponibles
 
+${_zsh_cmd_cyan}zsh-env-completion-add <nom> <commande>${_zsh_cmd_nc}
+    Ajoute une completion personnalisee
+    Ex: zsh-env-completion-add bun "bun completions"
+
+${_zsh_cmd_cyan}zsh-env-completion-remove <nom>${_zsh_cmd_nc}
+    Supprime une completion personnalisee
+
 ${_zsh_cmd_cyan}zsh-env-status${_zsh_cmd_nc}
     Affiche le statut et la configuration de zsh_env
 
@@ -194,6 +292,7 @@ ${_zsh_cmd_cyan}zsh-env-help${_zsh_cmd_nc}
     Affiche cette aide
 
 ${_zsh_cmd_bold}Configuration:${_zsh_cmd_nc} ~/.zsh_env/config.zsh
+${_zsh_cmd_bold}Completions:${_zsh_cmd_nc}   ~/.zsh_env/completions.zsh
 ${_zsh_cmd_bold}Recharger:${_zsh_cmd_nc}     ss (ou source ~/.zshrc)
 EOF
 }
