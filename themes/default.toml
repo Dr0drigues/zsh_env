@@ -1,8 +1,8 @@
 # Starship Theme: Default
-# Configuration equilibree pour le quotidien
+# Configuration equilibree pour le quotidien avec separateurs
 
 format = """
-$username$hostname$directory$git_branch$git_status$nodejs$python$rust$golang$java$docker_context$cmd_duration
+$username$hostname$directory[│](dimmed white)$git_branch$git_status[│](dimmed white)$nodejs$python$rust$golang$java[│](dimmed white)$docker_context$cmd_duration
 $character"""
 
 [character]
@@ -24,15 +24,15 @@ format = "[@$hostname](bold blue) "
 style = "bold cyan"
 truncation_length = 4
 truncate_to_repo = true
-format = "[$path]($style)[$read_only]($read_only_style) "
+format = "[ $path]($style)[$read_only]($read_only_style) "
 
 [git_branch]
-format = "[$symbol$branch(:$remote_branch)]($style) "
+format = " [$symbol$branch(:$remote_branch)]($style)"
 symbol = " "
 style = "bold purple"
 
 [git_status]
-format = '([$all_status$ahead_behind]($style) )'
+format = '( [$all_status$ahead_behind]($style)) '
 style = "bold yellow"
 ahead = "⇡${count}"
 behind = "⇣${count}"
@@ -46,37 +46,37 @@ renamed = "»"
 deleted = "✘"
 
 [nodejs]
-format = "[$symbol($version )]($style)"
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "bold green"
 
 [python]
-format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+format = ' [${symbol}${pyenv_prefix}${version}(\($virtualenv\))]($style)'
 symbol = " "
 style = "bold yellow"
 
 [rust]
-format = "[$symbol($version )]($style)"
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "bold red"
 
 [golang]
-format = "[$symbol($version )]($style)"
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "bold cyan"
 
 [java]
-format = "[$symbol($version )]($style)"
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "bold red"
 
 [docker_context]
-format = "[$symbol$context]($style) "
+format = " [$symbol$context]($style)"
 symbol = " "
 style = "blue bold"
 only_with_files = true
 
 [cmd_duration]
 min_time = 2_000
-format = "[$duration]($style) "
+format = " [$duration]($style) "
 style = "bold yellow"
