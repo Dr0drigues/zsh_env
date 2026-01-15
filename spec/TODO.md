@@ -42,6 +42,22 @@
 - [ ] `extract` décompresse une archive .zip
 - [ ] `gr` va à la racine du repo git
 
+## Plugins
+
+- [ ] `plugins.zsh` se source sans erreur
+- [ ] `ZSH_ENV_PLUGINS=()` vide ne cause pas d'erreur
+- [ ] `zsh-plugin-list` s'exécute sans erreur
+- [ ] `zsh-plugin-install` sans argument affiche l'usage
+- [ ] `zsh-plugin-remove` sans argument affiche l'usage
+- [ ] `_zsh_env_plugin_name` extrait le nom depuis `owner/repo`
+- [ ] `_zsh_env_plugin_name` extrait le nom depuis une URL complète
+- [ ] `_zsh_env_plugin_url` génère l'URL GitHub depuis `owner/repo`
+- [ ] `_zsh_env_plugin_url` préfixe avec `ZSH_ENV_PLUGINS_ORG` si pas de `/`
+- [ ] `_zsh_env_plugin_url` retourne l'URL telle quelle si `https://`
+- [ ] `_zsh_env_find_plugin_file` détecte `*.plugin.zsh`
+- [ ] `_zsh_env_find_plugin_file` détecte `init.zsh`
+- [ ] `_zsh_env_find_plugin_file` détecte `<nom>.zsh`
+
 ## Scripts GitLab
 
 - [ ] `trigger-jobs.sh --help` affiche l'aide
