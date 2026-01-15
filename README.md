@@ -150,6 +150,61 @@ Vous pouvez aussi créer vos propres thèmes dans `~/.zsh_env/themes/`.
 
 ---
 
+## Plugins
+
+Un gestionnaire de plugins léger est intégré. Il permet d'installer n'importe quel plugin Zsh depuis GitHub (ou autre) sans dépendance externe.
+
+### Configuration
+
+Dans `~/.zsh_env/config.zsh` :
+
+```zsh
+# Organisation par défaut (optionnel)
+ZSH_ENV_PLUGINS_ORG=zsh-users
+
+ZSH_ENV_PLUGINS=(
+    zsh-autosuggestions        # -> zsh-users/zsh-autosuggestions
+    zsh-syntax-highlighting    # -> zsh-users/zsh-syntax-highlighting
+    Aloxaf/fzf-tab             # org explicite
+)
+```
+
+Les plugins sont automatiquement installés au premier chargement du shell.
+
+### Commandes
+
+| Commande | Description |
+|----------|-------------|
+| `zsh-plugin-list` | Liste les plugins installés et suggestions |
+| `zsh-plugin-install <repo>` | Installe un plugin |
+| `zsh-plugin-remove <nom>` | Supprime un plugin |
+| `zsh-plugin-update` | Met à jour tous les plugins |
+
+### Formats supportés
+
+```zsh
+ZSH_ENV_PLUGINS_ORG=zsh-users  # Org par défaut (optionnel)
+
+ZSH_ENV_PLUGINS=(
+    zsh-autosuggestions                       # Utilise l'org par défaut
+    Aloxaf/fzf-tab                            # GitHub owner/repo
+    https://github.com/custom/plugin.git      # URL complète
+    https://gitlab.com/user/plugin.git        # GitLab, etc.
+)
+```
+
+### Plugins populaires
+
+| Plugin | Description |
+|--------|-------------|
+| `zsh-users/zsh-autosuggestions` | Suggestions basées sur l'historique |
+| `zsh-users/zsh-syntax-highlighting` | Coloration syntaxique en temps réel |
+| `zsh-users/zsh-completions` | Completions additionnelles |
+| `Aloxaf/fzf-tab` | Completions interactives avec fzf |
+| `hlissner/zsh-autopair` | Auto-fermeture des parenthèses/quotes |
+
+---
+
 ## Auto-Update
 
 Le système peut vérifier automatiquement les mises à jour.
@@ -179,6 +234,10 @@ ZSH_ENV_UPDATE_MODE="prompt"  # "prompt" ou "auto"
 | `zsh-env-doctor` | Diagnostic complet de l'installation |
 | `zsh-env-theme [nom]` | Gestion des thèmes Starship |
 | `zsh-env-help` | Affiche l'aide |
+| `zsh-plugin-list` | Liste les plugins installés |
+| `zsh-plugin-install <repo>` | Installe un plugin |
+| `zsh-plugin-remove <nom>` | Supprime un plugin |
+| `zsh-plugin-update` | Met à jour tous les plugins |
 
 ### Completions personnalisées
 
@@ -247,6 +306,8 @@ Le script propose de restaurer un backup de votre `.zshrc` si disponible.
 ├── aliases.local.zsh       # Alias personnels (ignoré par git)
 ├── variables.zsh           # Variables d'environnement
 ├── functions.zsh           # Loader de fonctions
+├── plugins.zsh             # Gestionnaire de plugins
+├── plugins/                # Plugins installés (ignoré par git)
 ├── functions/              # Fonctions chargées dynamiquement
 │   ├── auto_update.zsh     # Système d'auto-update
 │   ├── zsh_env_commands.zsh # Commandes zsh-env-*

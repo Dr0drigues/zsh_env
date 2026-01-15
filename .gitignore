@@ -14,6 +14,9 @@ aliases.local.zsh
 # Fichier de tracking auto-update
 .last_update_check
 
+# Plugins (clonés localement)
+plugins/
+
 # LLM files
 *.llmcache
 *.llmdata
