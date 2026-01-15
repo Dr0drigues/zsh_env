@@ -1,45 +1,76 @@
 # Starship Theme: Powerline
-# Style powerline avec separateurs
+# Style powerline avec segments imbriques (fleches)
+#
+# Design: Chaque segment est independant avec ses propres fleches
+# Cela garantit un affichage correct meme si certains segments sont absents
 
 format = """
-[](fg:blue)$directory[](fg:blue bg:purple)$git_branch$git_status[](fg:purple bg:yellow)$nodejs$python$rust[](fg:yellow)
+$directory\
+$git_branch$git_status\
+$nodejs$python$rust$golang$java\
+$docker_context\
+$cmd_duration
 $character"""
 
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
+success_symbol = "[](bold green)"
+error_symbol = "[](bold red)"
 
+# ===== DIRECTORY (toujours present) =====
 [directory]
-style = "fg:black bg:blue"
-format = "[ $path ]($style)"
+style = "fg:#FFFFFF bg:#3465A4 bold"
+format = "[](fg:#3465A4)[  $path ]($style)[](fg:#3465A4) "
 truncation_length = 3
 truncate_to_repo = true
 
+# ===== GIT (conditionnel - segment complet) =====
 [git_branch]
-format = '[ $symbol$branch ]($style)'
-style = "fg:black bg:purple"
-symbol = " "
+format = '[](fg:#8B5CF6)[  $symbol$branch(:$remote_branch)]($style)'
+style = "fg:#FFFFFF bg:#8B5CF6 bold"
+symbol = ""
 
 [git_status]
-format = '[$all_status$ahead_behind]($style)'
-style = "fg:black bg:purple"
+format = '[ $all_status$ahead_behind ]($style)[](fg:#8B5CF6) '
+style = "fg:#FFFFFF bg:#8B5CF6"
 ahead = "⇡${count}"
 behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 modified = "!"
 staged = "+"
 untracked = "?"
+stashed = "$"
+deleted = "✘"
 
+# ===== LANGAGES (segment groupe orange) =====
 [nodejs]
-format = '[ $symbol$version ]($style)'
-style = "fg:black bg:yellow"
-symbol = " "
+format = '[](fg:#F59E0B)[  $version ]($style)[](fg:#F59E0B) '
+style = "fg:#000000 bg:#F59E0B bold"
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+detect_folders = ["node_modules"]
 
 [python]
-format = '[ $symbol$version ]($style)'
-style = "fg:black bg:yellow"
-symbol = " "
+format = '[](fg:#3B82F6)[  $version ]($style)[](fg:#3B82F6) '
+style = "fg:#FFFFFF bg:#3B82F6 bold"
 
 [rust]
-format = '[ $symbol$version ]($style)'
-style = "fg:black bg:yellow"
-symbol = " "
+format = '[](fg:#EF4444)[  $version ]($style)[](fg:#EF4444) '
+style = "fg:#FFFFFF bg:#EF4444 bold"
+
+[golang]
+format = '[](fg:#06B6D4)[  $version ]($style)[](fg:#06B6D4) '
+style = "fg:#000000 bg:#06B6D4 bold"
+
+[java]
+format = '[](fg:#DC2626)[  $version ]($style)[](fg:#DC2626) '
+style = "fg:#FFFFFF bg:#DC2626 bold"
+
+# ===== EXTRAS =====
+[docker_context]
+format = '[](fg:#0EA5E9)[  $context ]($style)[](fg:#0EA5E9) '
+style = "fg:#FFFFFF bg:#0EA5E9 bold"
+only_with_files = true
+
+[cmd_duration]
+min_time = 2_000
+format = '[](fg:#6B7280)[  $duration ]($style)[](fg:#6B7280)'
+style = "fg:#FFFFFF bg:#6B7280"
