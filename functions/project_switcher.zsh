@@ -351,22 +351,24 @@ proj_scan() {
     # Chercher les dossiers avec .proj, .git, package.json, etc.
     while IFS= read -r dir; do
         [[ -z "$dir" ]] && continue
-        local name=$(basename "$dir")
+        local name
+        name=$(basename "$dir")
         local has_config=false
-        local markers=()
+        local markers=""
 
         # Detecter les marqueurs de projet
-        [[ -f "$dir/.proj" ]] && markers+=(".proj") && has_config=true
-        [[ -f "$dir/.project.yml" ]] && markers+=(".project.yml") && has_config=true
-        [[ -d "$dir/.git" ]] && markers+=("git")
-        [[ -f "$dir/package.json" ]] && markers+=("node")
-        [[ -f "$dir/Cargo.toml" ]] && markers+=("rust")
-        [[ -f "$dir/go.mod" ]] && markers+=("go")
-        [[ -f "$dir/pyproject.toml" || -f "$dir/setup.py" ]] && markers+=("python")
-        [[ -f "$dir/pom.xml" || -f "$dir/build.gradle" ]] && markers+=("java")
+        [[ -f "$dir/.proj" ]] && markers="$markers .proj" && has_config=true
+        [[ -f "$dir/.project.yml" ]] && markers="$markers .project.yml" && has_config=true
+        [[ -d "$dir/.git" ]] && markers="$markers git"
+        [[ -f "$dir/package.json" ]] && markers="$markers node"
+        [[ -f "$dir/Cargo.toml" ]] && markers="$markers rust"
+        [[ -f "$dir/go.mod" ]] && markers="$markers go"
+        [[ -f "$dir/pyproject.toml" || -f "$dir/setup.py" ]] && markers="$markers python"
+        [[ -f "$dir/pom.xml" || -f "$dir/build.gradle" ]] && markers="$markers java"
 
-        # Ignorer si pas de marqueur
-        [[ ${#markers[@]} -eq 0 ]] && continue
+        # Retirer l'espace initial et ignorer si pas de marqueur
+        markers="${markers# }"
+        [[ -z "$markers" ]] && continue
 
         # Verifier si deja enregistre
         local is_registered=false
@@ -379,7 +381,7 @@ proj_scan() {
         if $is_registered; then
             already_registered+=("$dir")
         else
-            found+=("$dir|$name|${markers[*]}")
+            found+=("$dir|$name|$markers")
         fi
     done < <(find "$scan_dir" -maxdepth "$depth" -type d 2>/dev/null)
 
@@ -394,12 +396,13 @@ proj_scan() {
     echo "──────────────────────────────────────────"
 
     local i=1
+    local entry_dir entry_name entry_markers
     for entry in "${found[@]}"; do
-        local dir=$(echo "$entry" | cut -d'|' -f1)
-        local name=$(echo "$entry" | cut -d'|' -f2)
-        local markers=$(echo "$entry" | cut -d'|' -f3)
-        printf "  %2d) %-20s [%s]\n" "$i" "$name" "$markers"
-        printf "      %s\n" "$dir"
+        entry_dir=$(echo "$entry" | cut -d'|' -f1)
+        entry_name=$(echo "$entry" | cut -d'|' -f2)
+        entry_markers=$(echo "$entry" | cut -d'|' -f3)
+        printf "  %2d) %-20s [%s]\n" "$i" "$entry_name" "$entry_markers"
+        printf "      %s\n" "$entry_dir"
         ((i++))
     done
 
