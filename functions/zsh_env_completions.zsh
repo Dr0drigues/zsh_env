@@ -203,3 +203,39 @@ _trash() {
         '*:files:_files'
 }
 compdef _trash trash
+
+# --- Completions ai-context ---
+
+_ai_context() {
+    local commands=(
+        'detect:Affiche les informations detectees du projet'
+        'init:Cree un fichier .ai-context.yml'
+        'generate:Genere les fichiers de contexte'
+        'templates:Liste les templates disponibles'
+        'help:Affiche aide'
+    )
+
+    _arguments \
+        '1:command:->command' \
+        '*:args:->args'
+
+    case $state in
+        command)
+            _describe 'command' commands
+            ;;
+        args)
+            case $words[2] in
+                generate|gen|g)
+                    _arguments \
+                        '-f[Force overwrite]' \
+                        '--force[Force overwrite]' \
+                        '1:directory:_files -/'
+                    ;;
+                detect|d|init|i)
+                    _arguments '1:directory:_files -/'
+                    ;;
+            esac
+            ;;
+    esac
+}
+compdef _ai_context ai-context
