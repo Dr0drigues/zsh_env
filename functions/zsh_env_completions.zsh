@@ -4,6 +4,11 @@
 # Auto-completion pour toutes les fonctions du projet
 # ==============================================================================
 
+# Ne charger que si compdef est disponible (compinit doit etre execute avant)
+if ! (( $+functions[compdef] )); then
+    return 0
+fi
+
 # --- Completions zsh-env-* ---
 
 _zsh_env_theme() {
