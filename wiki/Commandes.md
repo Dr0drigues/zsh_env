@@ -115,3 +115,29 @@ Voir [[Git-Hooks]] pour plus de détails.
 | `zsh-plugin-install <repo>` | Installe un plugin |
 | `zsh-plugin-remove <nom>` | Supprime un plugin |
 | `zsh-plugin-update` | Met à jour les plugins |
+
+## AI Context
+
+| Commande | Description |
+|----------|-------------|
+| `ai-context detect` | Affiche les infos détectées du projet |
+| `ai-context init` | Crée un fichier .ai-context.yml |
+| `ai-context generate` | Génère CLAUDE.md, .cursorrules, copilot-instructions |
+| `ai-context generate -f` | Génère en écrasant les fichiers existants |
+| `ai-context templates` | Liste les templates disponibles |
+
+Voir [[AI-Context]] pour plus de détails.
+
+## AI Tokens
+
+| Commande | Description |
+|----------|-------------|
+| `ai-tokens estimate [file\|dir]` | Estime les tokens d'un fichier ou dossier |
+| `ai-tokens analyze [dir]` | Analyse détaillée avec suggestions |
+| `ai-tokens compress [file]` | Compresse le contenu (supprime commentaires) |
+| `ai-tokens select [dir] [query]` | Sélectionne les fichiers pertinents |
+| `ai-tokens export [dir]` | Exporte le contexte optimisé |
+
+Alias: `ait` (raccourci pour ai-tokens)
+
+Voir [[AI-Tokens]] pour plus de détails.

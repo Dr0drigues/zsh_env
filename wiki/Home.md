@@ -18,6 +18,10 @@ Bienvenue sur le wiki de **zsh_env** - une configuration Zsh modulaire et orient
 - [[Git-Hooks]] - Gestionnaire de hooks Git
 - [[Security]] - Audit de sécurité
 
+### Outils IA
+- [[AI-Context]] - Génération de contexte pour assistants IA (Claude, Cursor, Copilot)
+- [[AI-Tokens]] - Estimation et optimisation des tokens LLM
+
 ### Personnalisation
 - [[Themes]] - Thèmes Starship
 - [[Plugins]] - Gestionnaire de plugins
