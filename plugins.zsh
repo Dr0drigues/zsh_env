@@ -236,3 +236,15 @@ unset _plugin
 
 # Recharger les completions si des plugins en ont ajouté
 (( $+functions[compinit] )) || autoload -Uz compinit
+
+# =======================================================
+# KEYBINDINGS POUR PLUGINS
+# =======================================================
+
+# zsh-history-substring-search : fleches haut/bas pour chercher dans l'historique
+if (( $+functions[history-substring-search-up] )); then
+    bindkey '^[[A' history-substring-search-up      # Fleche haut
+    bindkey '^[[B' history-substring-search-down    # Fleche bas
+    bindkey '^[OA' history-substring-search-up      # Fleche haut (mode application)
+    bindkey '^[OB' history-substring-search-down    # Fleche bas (mode application)
+fi
