@@ -239,3 +239,47 @@ _ai_context() {
     esac
 }
 compdef _ai_context ai-context
+
+# --- Completions ai-tokens ---
+
+_ai_tokens() {
+    local commands=(
+        'estimate:Estime les tokens (fichier, dossier ou stdin)'
+        'analyze:Analyse detaillee avec suggestions'
+        'compress:Compresse le contenu (supprime commentaires)'
+        'select:Selectionne les fichiers pertinents'
+        'export:Exporte le contexte optimise'
+        'help:Affiche aide'
+    )
+
+    _arguments \
+        '1:command:->command' \
+        '*:args:->args'
+
+    case $state in
+        command)
+            _describe 'command' commands
+            ;;
+        args)
+            case $words[2] in
+                estimate|est|e|analyze|analyse|a|select|sel|s)
+                    _arguments '1:target:_files'
+                    ;;
+                compress|comp|c)
+                    _arguments \
+                        '1:file:_files' \
+                        '2:language:(js ts py python go rust java c cpp sh bash zsh html)'
+                    ;;
+                export|exp|x)
+                    _arguments \
+                        '1:directory:_files -/' \
+                        '--compress[Compresse le contenu]' \
+                        '-c[Compresse le contenu]' \
+                        '--max-tokens=[Limite de tokens]:tokens:'
+                    ;;
+            esac
+            ;;
+    esac
+}
+compdef _ai_tokens ai-tokens
+compdef _ai_tokens ait
