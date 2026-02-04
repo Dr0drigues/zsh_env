@@ -228,8 +228,9 @@ proj_add() {
         return 1
     fi
 
-    # Creer le dossier config
-    mkdir -p "$(dirname "$PROJ_REGISTRY_FILE")"
+    # Creer le dossier config (utilise expansion zsh au lieu de dirname)
+    local registry_dir="${PROJ_REGISTRY_FILE:h}"
+    [[ ! -d "$registry_dir" ]] && command mkdir -p "$registry_dir"
 
     # Ajouter ou mettre a jour
     if grep -qE "^${name}:" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
@@ -444,23 +445,28 @@ proj_auto_register() {
 
     echo "Recherche des fichiers .proj dans $scan_dir..."
 
+    # Creer le dossier config si necessaire
+    local registry_dir="${PROJ_REGISTRY_FILE:h}"
+    [[ ! -d "$registry_dir" ]] && command mkdir -p "$registry_dir"
+
     local count=0
+    local proj_dir proj_name
     while IFS= read -r proj_file; do
-        local dir=$(dirname "$proj_file")
-        local name=$(basename "$dir")
+        proj_dir="${proj_file:h}"
+        proj_name="${proj_dir:t}"
 
         # Verifier si deja enregistre
-        if [[ -f "$PROJ_REGISTRY_FILE" ]] && grep -q "\"$dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
+        if [[ -f "$PROJ_REGISTRY_FILE" ]] && grep -q "\"$proj_dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
             continue
         fi
 
         # Lire le nom depuis le fichier .proj si defini
-        local proj_name=$(_proj_get_value "$proj_file" "name")
-        [[ -n "$proj_name" ]] && name="$proj_name"
+        local custom_name
+        custom_name=$(_proj_get_value "$proj_file" "name")
+        [[ -n "$custom_name" ]] && proj_name="$custom_name"
 
-        echo "  + $name ($dir)"
-        mkdir -p "$(dirname "$PROJ_REGISTRY_FILE")"
-        echo "${name}: \"$dir\"" >> "$PROJ_REGISTRY_FILE"
+        echo "  + $proj_name ($proj_dir)"
+        echo "${proj_name}: \"$proj_dir\"" >> "$PROJ_REGISTRY_FILE"
         ((count++))
     done < <(find "$scan_dir" -maxdepth "$depth" -name ".proj" -o -name ".project.yml" 2>/dev/null)
 
