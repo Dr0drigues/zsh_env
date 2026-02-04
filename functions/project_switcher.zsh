@@ -230,40 +230,136 @@ proj() {
     return 1
 }
 
+# Verifie si un nom existe dans le registre
+_proj_name_exists() {
+    local check_name="$1"
+    [[ ! -f "$PROJ_REGISTRY_FILE" ]] && return 1
+    local line
+    while IFS= read -r line; do
+        [[ "${line%%:*}" == "$check_name" ]] && return 0
+    done < "$PROJ_REGISTRY_FILE"
+    return 1
+}
+
+# Verifie si un path existe dans le registre, retourne le nom associe
+_proj_path_exists() {
+    local check_path="$1"
+    [[ ! -f "$PROJ_REGISTRY_FILE" ]] && return 1
+    local line lpath
+    while IFS= read -r line; do
+        lpath="${line#*: }"
+        lpath="${lpath//\"/}"
+        [[ "$lpath" == "$check_path" ]] && { echo "${line%%:*}"; return 0; }
+    done < "$PROJ_REGISTRY_FILE"
+    return 1
+}
+
 # Enregistre un projet
+# Usage: proj_add [-n|--name NAME] [-p|--path PATH] [NAME] [PATH]
 proj_add() {
-    local name="$1"
-    local path="${2:-$PWD}"
+    local name="" path="" force=false
 
-    if [[ -z "$name" ]]; then
-        name=$(basename "$path")
-        echo -n "Nom du projet [$name]: "
-        read input
-        [[ -n "$input" ]] && name="$input"
-    fi
+    # Parser les arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -n|--name)
+                name="$2"
+                shift 2
+                ;;
+            -p|--path)
+                path="$2"
+                shift 2
+                ;;
+            -f|--force)
+                force=true
+                shift
+                ;;
+            -*)
+                echo "Option inconnue: $1" >&2
+                return 1
+                ;;
+            *)
+                # Arguments positionnels
+                if [[ -z "$name" ]]; then
+                    name="$1"
+                elif [[ -z "$path" ]]; then
+                    path="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
 
-    # Resoudre le chemin
+    # Valeurs par defaut
+    path="${path:-$PWD}"
+
+    # Resoudre le chemin absolu
     path=$(cd "$path" 2>/dev/null && pwd)
     if [[ -z "$path" ]]; then
         echo "Chemin invalide." >&2
         return 1
     fi
 
-    # Creer le dossier config (utilise expansion zsh au lieu de dirname)
+    # Verifier si le path existe deja
+    local existing_name
+    existing_name=$(_proj_path_exists "$path")
+    if [[ $? -eq 0 ]]; then
+        echo "Ce chemin est deja enregistre sous le nom '$existing_name'."
+        if [[ "$force" != true ]]; then
+            echo -n "Mettre a jour le nom? [y/N] "
+            read -r confirm
+            [[ "$confirm" != "y" && "$confirm" != "Y" ]] && return 0
+            # Supprimer l'ancienne entree
+            _proj_remove_entry "$existing_name"
+        else
+            return 0
+        fi
+    fi
+
+    # Demander le nom si non fourni
+    if [[ -z "$name" ]]; then
+        local default_name="${path:t}"
+        echo -n "Nom du projet [$default_name]: "
+        read -r input
+        name="${input:-$default_name}"
+    fi
+
+    # Verifier si le nom existe deja
+    if _proj_name_exists "$name"; then
+        echo "Un projet nomme '$name' existe deja."
+        if [[ "$force" != true ]]; then
+            echo -n "Ecraser? [y/N] "
+            read -r confirm
+            if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+                echo -n "Nouveau nom: "
+                read -r name
+                [[ -z "$name" ]] && return 0
+            fi
+        fi
+        # Supprimer l'ancienne entree
+        _proj_remove_entry "$name"
+    fi
+
+    # Creer le dossier config
     local registry_dir="${PROJ_REGISTRY_FILE:h}"
     [[ ! -d "$registry_dir" ]] && /bin/mkdir -p "$registry_dir"
 
-    # Ajouter ou mettre a jour
-    if grep -qE "^${name}:" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
-        # Mettre a jour
-        sed -i.bak "s|^${name}:.*|${name}: \"$path\"|" "$PROJ_REGISTRY_FILE"
-        echo "Projet '$name' mis a jour."
-    else
-        echo "${name}: \"$path\"" >> "$PROJ_REGISTRY_FILE"
-        echo "Projet '$name' enregistre."
-    fi
-
+    # Ajouter
+    echo "${name}: \"$path\"" >> "$PROJ_REGISTRY_FILE"
+    echo "Projet '$name' enregistre."
     echo "  Chemin: $path"
+}
+
+# Supprime une entree du registre (fonction interne)
+_proj_remove_entry() {
+    local entry_name="$1"
+    [[ ! -f "$PROJ_REGISTRY_FILE" ]] && return
+    local tmpfile="${PROJ_REGISTRY_FILE}.tmp"
+    local line
+    while IFS= read -r line; do
+        [[ "${line%%:*}" != "$entry_name" ]] && echo "$line"
+    done < "$PROJ_REGISTRY_FILE" > "$tmpfile"
+    /bin/mv "$tmpfile" "$PROJ_REGISTRY_FILE"
 }
 
 # Liste les projets enregistres
@@ -456,7 +552,7 @@ proj_scan() {
             # Format: "name                 [markers] path"
             sel_name="${line%% *}"
             sel_path="${line##* }"
-            proj_add "$sel_name" "$sel_path"
+            proj_add -n "$sel_name" -p "$sel_path" -f
         done <<< "$selected"
     else
         echo -n "Enregistrer tous ces projets? [y/N] "
@@ -481,29 +577,43 @@ proj_auto_register() {
     local registry_dir="${PROJ_REGISTRY_FILE:h}"
     [[ ! -d "$registry_dir" ]] && /bin/mkdir -p "$registry_dir"
 
-    local count=0
-    local proj_dir proj_name
+    local count=0 skipped=0
+    local proj_dir proj_name existing_name custom_name
     while IFS= read -r proj_file; do
         proj_dir="${proj_file:h}"
         proj_name="${proj_dir:t}"
 
-        # Verifier si deja enregistre
-        if [[ -f "$PROJ_REGISTRY_FILE" ]] && grep -q "\"$proj_dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
+        # Verifier si le chemin est deja enregistre
+        existing_name=$(_proj_path_exists "$proj_dir")
+        if [[ $? -eq 0 ]]; then
+            ((skipped++))
             continue
         fi
 
         # Lire le nom depuis le fichier .proj si defini
-        local custom_name
         custom_name=$(_proj_get_value "$proj_file" "name")
         [[ -n "$custom_name" ]] && proj_name="$custom_name"
 
-        echo "  + $proj_name ($proj_dir)"
+        # Verifier si le nom existe deja, ajouter un suffixe si necessaire
+        if _proj_name_exists "$proj_name"; then
+            local base_name="$proj_name"
+            local suffix=2
+            while _proj_name_exists "${base_name}-${suffix}"; do
+                ((suffix++))
+            done
+            proj_name="${base_name}-${suffix}"
+            echo "  + $proj_name ($proj_dir) [renomme depuis $base_name]"
+        else
+            echo "  + $proj_name ($proj_dir)"
+        fi
+
         echo "${proj_name}: \"$proj_dir\"" >> "$PROJ_REGISTRY_FILE"
         ((count++))
     done < <(find "$scan_dir" -maxdepth "$depth" -name ".proj" -o -name ".project.yml" 2>/dev/null)
 
     echo ""
     echo "$count projet(s) enregistre(s)."
+    [[ $skipped -gt 0 ]] && echo "$skipped projet(s) deja enregistre(s) (ignores)."
 }
 
 # Aide
@@ -513,12 +623,23 @@ Project Switcher - Changement de contexte complet
 
 Usage:
   proj [name|path]       Charge un projet (interactif sans arg)
-  proj --add [name]      Enregistre le dossier courant
+  proj --add [OPTIONS]   Enregistre un projet
   proj --list            Liste les projets enregistres
   proj --remove <name>   Supprime un projet du registre
   proj --init            Cree un fichier .proj dans le dossier courant
   proj --scan [dir]      Scanne et propose des projets a enregistrer
   proj --auto [dir]      Auto-enregistre les projets avec .proj
+
+Options de --add:
+  -n, --name NAME        Nom du projet (sinon demande interactif)
+  -p, --path PATH        Chemin du projet (defaut: dossier courant)
+  -f, --force            Pas de confirmation pour ecraser les doublons
+
+Exemples:
+  proj --add                      # Enregistre le dossier courant (demande le nom)
+  proj --add mon-projet           # Enregistre avec le nom 'mon-projet'
+  proj --add -n api -p ~/work/api # Enregistre ~/work/api sous le nom 'api'
+  proj --scan ~/projects          # Scanne et propose des projets
 
 Fichier .proj:
   name: my-project       Nom du projet (optionnel)
