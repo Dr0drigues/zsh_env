@@ -348,14 +348,14 @@ proj_scan() {
 
     local found=()
     local already_registered=()
+    local name has_config markers is_registered
 
     # Chercher les dossiers avec .proj, .git, package.json, etc.
     while IFS= read -r dir; do
         [[ -z "$dir" ]] && continue
-        local name
-        name=$(basename "$dir")
-        local has_config=false
-        local markers=""
+        name="${dir:t}"
+        has_config=false
+        markers=""
 
         # Detecter les marqueurs de projet
         [[ -f "$dir/.proj" ]] && markers="$markers .proj" && has_config=true
@@ -372,7 +372,7 @@ proj_scan() {
         [[ -z "$markers" ]] && continue
 
         # Verifier si deja enregistre
-        local is_registered=false
+        is_registered=false
         if [[ -f "$PROJ_REGISTRY_FILE" ]]; then
             if grep -q "\"$dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
                 is_registered=true
