@@ -28,8 +28,17 @@ _proj_find_config() {
 _proj_get_value() {
     local file="$1"
     local key="$2"
+    local line value
 
-    grep -E "^${key}:" "$file" 2>/dev/null | sed "s/^${key}:[[:space:]]*//" | tr -d '"' | tr -d "'"
+    while IFS= read -r line; do
+        if [[ "$line" == ${key}:* ]]; then
+            value="${line#*: }"
+            value="${value//\"/}"
+            value="${value//\'/}"
+            echo "$value"
+            return 0
+        fi
+    done < "$file" 2>/dev/null
 }
 
 # Charge un projet par son chemin
@@ -129,7 +138,12 @@ proj() {
 
         # Selection interactive
         if [[ -f "$PROJ_REGISTRY_FILE" ]] && command -v fzf &> /dev/null; then
-            local projects=$(grep -E "^[a-zA-Z0-9_-]+:" "$PROJ_REGISTRY_FILE" | sed 's/:.*//')
+            local projects=""
+            local pline
+            while IFS= read -r pline; do
+                [[ -z "$pline" || "$pline" =~ ^# ]] && continue
+                projects+="${pline%%:*}"$'\n'
+            done < "$PROJ_REGISTRY_FILE"
             if [[ -n "$projects" ]]; then
                 target=$(echo "$projects" | fzf --header="Projets enregistres" --prompt="Projet > ")
                 [[ -z "$target" ]] && return 0
@@ -191,10 +205,17 @@ proj() {
 
     # Chercher dans le registre
     if [[ -f "$PROJ_REGISTRY_FILE" ]]; then
-        local path=$(grep -E "^${target}:" "$PROJ_REGISTRY_FILE" | sed "s/^${target}:[[:space:]]*//" | tr -d '"')
-        path="${path/#\~/$HOME}"
-        if [[ -n "$path" && -d "$path" ]]; then
-            _proj_load_by_path "$path"
+        local regpath="" regline
+        while IFS= read -r regline; do
+            if [[ "$regline" == ${target}:* ]]; then
+                regpath="${regline#*: }"
+                regpath="${regpath//\"/}"
+                break
+            fi
+        done < "$PROJ_REGISTRY_FILE"
+        regpath="${regpath/#\~/$HOME}"
+        if [[ -n "$regpath" && -d "$regpath" ]]; then
+            _proj_load_by_path "$regpath"
             return
         fi
     fi
@@ -256,17 +277,20 @@ proj_list() {
     echo "Projets enregistres:"
     echo "──────────────────────────────────────────"
 
+    local proj_name proj_path
     while IFS= read -r line; do
         [[ -z "$line" || "$line" =~ ^# ]] && continue
 
-        local name=$(echo "$line" | cut -d: -f1)
-        local path=$(echo "$line" | sed "s/^${name}:[[:space:]]*//" | tr -d '"')
-        path="${path/#\~/$HOME}"
+        # Parse avec expansions zsh: "name: /path" ou "name: \"/path\""
+        proj_name="${line%%:*}"
+        proj_path="${line#*: }"
+        proj_path="${proj_path//\"/}"  # Retire les guillemets
+        proj_path="${proj_path/#\~/$HOME}"
 
-        if [[ -d "$path" ]]; then
-            printf "  %-15s %s\n" "$name" "$path"
+        if [[ -d "$proj_path" ]]; then
+            printf "  %-15s %s\n" "$proj_name" "$proj_path"
         else
-            printf "  %-15s %s \033[31m(manquant)\033[0m\n" "$name" "$path"
+            printf "  %-15s %s \033[31m(manquant)\033[0m\n" "$proj_name" "$proj_path"
         fi
     done < "$PROJ_REGISTRY_FILE"
 
@@ -398,10 +422,13 @@ proj_scan() {
 
     local i=1
     local entry_dir entry_name entry_markers
+    local parts
     for entry in "${found[@]}"; do
-        entry_dir=$(echo "$entry" | cut -d'|' -f1)
-        entry_name=$(echo "$entry" | cut -d'|' -f2)
-        entry_markers=$(echo "$entry" | cut -d'|' -f3)
+        # Split par | avec zsh
+        parts=("${(@s:|:)entry}")
+        entry_dir="${parts[1]}"
+        entry_name="${parts[2]}"
+        entry_markers="${parts[3]}"
         printf "  %2d) %-20s [%s]\n" "$i" "$entry_name" "$entry_markers"
         printf "      %s\n" "$entry_dir"
         ((i++))
@@ -413,26 +440,31 @@ proj_scan() {
     # Proposer d'enregistrer
     if command -v fzf &> /dev/null; then
         echo "Selection des projets a enregistrer (TAB: toggle, ENTER: valider):"
-        local selected=$(printf '%s\n' "${found[@]}" | \
-            awk -F'|' '{printf "%-20s [%s] %s\n", $2, $3, $1}' | \
-            fzf --multi --header="Projets a enregistrer" --prompt="Select > ")
+        # Formater pour fzf
+        local fzf_lines=""
+        for entry in "${found[@]}"; do
+            parts=("${(@s:|:)entry}")
+            fzf_lines+="$(printf "%-20s [%s] %s" "${parts[2]}" "${parts[3]}" "${parts[1]}")"$'\n'
+        done
+        local selected=$(echo "$fzf_lines" | fzf --multi --header="Projets a enregistrer" --prompt="Select > ")
 
         [[ -z "$selected" ]] && echo "Aucun projet selectionne." && return 0
 
         echo ""
+        local sel_name sel_path
         while IFS= read -r line; do
-            local name=$(echo "$line" | awk '{print $1}')
-            local path=$(echo "$line" | awk '{print $NF}')
-            proj_add "$name" "$path"
+            # Format: "name                 [markers] path"
+            sel_name="${line%% *}"
+            sel_path="${line##* }"
+            proj_add "$sel_name" "$sel_path"
         done <<< "$selected"
     else
         echo -n "Enregistrer tous ces projets? [y/N] "
         read -r confirm
         if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
             for entry in "${found[@]}"; do
-                local dir=$(echo "$entry" | cut -d'|' -f1)
-                local name=$(echo "$entry" | cut -d'|' -f2)
-                proj_add "$name" "$dir"
+                parts=("${(@s:|:)entry}")
+                proj_add "${parts[2]}" "${parts[1]}"
             done
         fi
     fi
