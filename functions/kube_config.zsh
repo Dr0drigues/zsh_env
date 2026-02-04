@@ -57,7 +57,7 @@ _kube_list_configs() {
     # Configs dans configs.d/ (tous les fichiers réguliers)
     if [[ -d "$KUBE_CONFIGS_DIR" ]]; then
         for f in "$KUBE_CONFIGS_DIR"/*(N.); do
-            configs+=("configs.d/$(basename "$f")")
+            configs+=("configs.d/${f:t}")
         done
     fi
 
@@ -84,7 +84,7 @@ kube_init() {
         for sops_file in "${sops_files[@]}"; do
             [[ ! -f "$sops_file" ]] && continue
 
-            local basename=$(basename "$sops_file")
+            local basename="${sops_file:t}"
             # Retire l'extension .sops.yml ou .sops.yaml
             local dest_name
             if [[ "$basename" == *.sops.yml ]]; then
@@ -139,8 +139,7 @@ kube_select() {
     if [[ -d "$KUBE_CONFIGS_DIR" ]]; then
         for f in "$KUBE_CONFIGS_DIR"/*(N.); do
             configs+=("$f")
-            local name
-            name=$(basename "$f")
+            local name="${f:t}"
             if _kube_is_loaded "$f"; then
                 display_lines+=("● $name")
             else
@@ -330,7 +329,7 @@ kube_encrypt() {
     # Cree le dossier kube/ dans zsh_env si necessaire
     [[ ! -d "$KUBE_SOPS_SOURCE" ]] && mkdir -p "$KUBE_SOPS_SOURCE"
 
-    local basename=$(basename "$config_file")
+    local basename="${config_file:t}"
     local dest="$KUBE_SOPS_SOURCE/${basename%.yml}.sops.yml"
     dest="${dest%.yaml}.sops.yml"
 
