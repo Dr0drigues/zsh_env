@@ -52,6 +52,18 @@ fi
 
 export PATH="$SCRIPTS_DIR:$PATH"
 
+# =======================================================
+# COMPLETION SYSTEM (doit etre avant functions.zsh)
+# =======================================================
+# Initialiser compinit avec cache pour performance
+autoload -Uz compinit
+# Cache quotidien pour eviter la lenteur au demarrage
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
+
 # Load functions
 if [ -f "$ZSH_ENV_DIR/functions.zsh" ]; then
     source "$ZSH_ENV_DIR/functions.zsh"
