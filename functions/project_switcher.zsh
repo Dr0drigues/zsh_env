@@ -230,7 +230,7 @@ proj_add() {
 
     # Creer le dossier config (utilise expansion zsh au lieu de dirname)
     local registry_dir="${PROJ_REGISTRY_FILE:h}"
-    [[ ! -d "$registry_dir" ]] && command mkdir -p "$registry_dir"
+    [[ ! -d "$registry_dir" ]] && /bin/mkdir -p "$registry_dir"
 
     # Ajouter ou mettre a jour
     if grep -qE "^${name}:" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
@@ -447,7 +447,7 @@ proj_auto_register() {
 
     # Creer le dossier config si necessaire
     local registry_dir="${PROJ_REGISTRY_FILE:h}"
-    [[ ! -d "$registry_dir" ]] && command mkdir -p "$registry_dir"
+    [[ ! -d "$registry_dir" ]] && /bin/mkdir -p "$registry_dir"
 
     local count=0
     local proj_dir proj_name
