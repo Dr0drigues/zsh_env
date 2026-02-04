@@ -138,8 +138,9 @@ proj() {
 
         if [[ -z "$target" ]]; then
             echo "Usage: proj <name|path>" >&2
-            echo "       proj --add [name] [path]   Enregistrer un projet" >&2
-            echo "       proj --list                Lister les projets" >&2
+            echo "       proj --add [name]    Enregistrer un projet" >&2
+            echo "       proj --list          Lister les projets" >&2
+            echo "       proj --scan [dir]    Scanner et proposer des projets" >&2
             return 1
         fi
     fi
@@ -160,6 +161,14 @@ proj() {
             ;;
         --init|-i)
             proj_init
+            return
+            ;;
+        --scan|-s)
+            proj_scan "$2" "$3"
+            return
+            ;;
+        --auto)
+            proj_auto_register "$2" "$3"
             return
             ;;
         --help|-h)
@@ -295,9 +304,13 @@ proj_init() {
         return 1
     fi
 
-    cat > "$config_file" << 'EOF'
+    local default_name=$(basename "$PWD")
+    cat > "$config_file" << EOF
 # Configuration projet zsh_env
 # Utilisez 'proj' pour charger ce contexte
+
+# Nom du projet (utilise pour l'enregistrement auto)
+name: $default_name
 
 # Contexte Kubernetes (optionnel)
 # kube_context: my-cluster-context
@@ -306,7 +319,7 @@ proj_init() {
 # node_version: 18
 
 # Session tmux (optionnel)
-# tmux_session: my-project
+# tmux_session: $default_name
 
 # Fichier d'environnement a charger (optionnel)
 # env_file: .env.local
@@ -317,6 +330,139 @@ EOF
 
     echo "Fichier .proj cree."
     echo "Editez-le pour configurer votre contexte projet."
+}
+
+# Scanne un dossier pour trouver des projets potentiels
+proj_scan() {
+    local scan_dir="${1:-${WORK_DIR:-$HOME/projects}}"
+    local depth="${2:-2}"
+
+    if [[ ! -d "$scan_dir" ]]; then
+        echo "Dossier non trouve: $scan_dir" >&2
+        return 1
+    fi
+
+    echo "Scan de $scan_dir (profondeur: $depth)..."
+    echo ""
+
+    local found=()
+    local already_registered=()
+
+    # Chercher les dossiers avec .proj, .git, package.json, etc.
+    while IFS= read -r dir; do
+        [[ -z "$dir" ]] && continue
+        local name=$(basename "$dir")
+        local has_config=false
+        local markers=()
+
+        # Detecter les marqueurs de projet
+        [[ -f "$dir/.proj" ]] && markers+=(".proj") && has_config=true
+        [[ -f "$dir/.project.yml" ]] && markers+=(".project.yml") && has_config=true
+        [[ -d "$dir/.git" ]] && markers+=("git")
+        [[ -f "$dir/package.json" ]] && markers+=("node")
+        [[ -f "$dir/Cargo.toml" ]] && markers+=("rust")
+        [[ -f "$dir/go.mod" ]] && markers+=("go")
+        [[ -f "$dir/pyproject.toml" || -f "$dir/setup.py" ]] && markers+=("python")
+        [[ -f "$dir/pom.xml" || -f "$dir/build.gradle" ]] && markers+=("java")
+
+        # Ignorer si pas de marqueur
+        [[ ${#markers[@]} -eq 0 ]] && continue
+
+        # Verifier si deja enregistre
+        local is_registered=false
+        if [[ -f "$PROJ_REGISTRY_FILE" ]]; then
+            if grep -q "\"$dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
+                is_registered=true
+            fi
+        fi
+
+        if $is_registered; then
+            already_registered+=("$dir")
+        else
+            found+=("$dir|$name|${markers[*]}")
+        fi
+    done < <(find "$scan_dir" -maxdepth "$depth" -type d 2>/dev/null)
+
+    # Afficher les resultats
+    if [[ ${#found[@]} -eq 0 ]]; then
+        echo "Aucun nouveau projet detecte."
+        [[ ${#already_registered[@]} -gt 0 ]] && echo "${#already_registered[@]} projet(s) deja enregistre(s)."
+        return 0
+    fi
+
+    echo "Projets detectes:"
+    echo "──────────────────────────────────────────"
+
+    local i=1
+    for entry in "${found[@]}"; do
+        local dir=$(echo "$entry" | cut -d'|' -f1)
+        local name=$(echo "$entry" | cut -d'|' -f2)
+        local markers=$(echo "$entry" | cut -d'|' -f3)
+        printf "  %2d) %-20s [%s]\n" "$i" "$name" "$markers"
+        printf "      %s\n" "$dir"
+        ((i++))
+    done
+
+    echo "──────────────────────────────────────────"
+    echo ""
+
+    # Proposer d'enregistrer
+    if command -v fzf &> /dev/null; then
+        echo "Selection des projets a enregistrer (TAB: toggle, ENTER: valider):"
+        local selected=$(printf '%s\n' "${found[@]}" | \
+            awk -F'|' '{printf "%-20s [%s] %s\n", $2, $3, $1}' | \
+            fzf --multi --header="Projets a enregistrer" --prompt="Select > ")
+
+        [[ -z "$selected" ]] && echo "Aucun projet selectionne." && return 0
+
+        echo ""
+        while IFS= read -r line; do
+            local name=$(echo "$line" | awk '{print $1}')
+            local path=$(echo "$line" | awk '{print $NF}')
+            proj_add "$name" "$path"
+        done <<< "$selected"
+    else
+        echo -n "Enregistrer tous ces projets? [y/N] "
+        read -r confirm
+        if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+            for entry in "${found[@]}"; do
+                local dir=$(echo "$entry" | cut -d'|' -f1)
+                local name=$(echo "$entry" | cut -d'|' -f2)
+                proj_add "$name" "$dir"
+            done
+        fi
+    fi
+}
+
+# Auto-enregistre les projets avec fichier .proj
+proj_auto_register() {
+    local scan_dir="${1:-${WORK_DIR:-$HOME/projects}}"
+    local depth="${2:-3}"
+
+    echo "Recherche des fichiers .proj dans $scan_dir..."
+
+    local count=0
+    while IFS= read -r proj_file; do
+        local dir=$(dirname "$proj_file")
+        local name=$(basename "$dir")
+
+        # Verifier si deja enregistre
+        if [[ -f "$PROJ_REGISTRY_FILE" ]] && grep -q "\"$dir\"" "$PROJ_REGISTRY_FILE" 2>/dev/null; then
+            continue
+        fi
+
+        # Lire le nom depuis le fichier .proj si defini
+        local proj_name=$(_proj_get_value "$proj_file" "name")
+        [[ -n "$proj_name" ]] && name="$proj_name"
+
+        echo "  + $name ($dir)"
+        mkdir -p "$(dirname "$PROJ_REGISTRY_FILE")"
+        echo "${name}: \"$dir\"" >> "$PROJ_REGISTRY_FILE"
+        ((count++))
+    done < <(find "$scan_dir" -maxdepth "$depth" -name ".proj" -o -name ".project.yml" 2>/dev/null)
+
+    echo ""
+    echo "$count projet(s) enregistre(s)."
 }
 
 # Aide
@@ -330,8 +476,11 @@ Usage:
   proj --list            Liste les projets enregistres
   proj --remove <name>   Supprime un projet du registre
   proj --init            Cree un fichier .proj dans le dossier courant
+  proj --scan [dir]      Scanne et propose des projets a enregistrer
+  proj --auto [dir]      Auto-enregistre les projets avec .proj
 
 Fichier .proj:
+  name: my-project       Nom du projet (optionnel)
   kube_context: ctx      Change le contexte kubectl
   node_version: 18       Change la version Node (nvm)
   tmux_session: name     Suggere une session tmux

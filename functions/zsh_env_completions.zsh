@@ -116,7 +116,7 @@ _proj() {
     fi
 
     _arguments \
-        '1:project or option:(--add --list --remove --init --help ${projects[@]})'
+        '1:project or option:(--add --list --remove --init --scan --auto --help ${projects[@]})'
 }
 compdef _proj proj
 
