@@ -31,3 +31,8 @@ GEMINI.md
 .cursor
 .cursorrules
 .github/copilot-*
+
+# Fichiers Boulanger dechiffres (generes a partir des .enc)
+boulanger/settings.xml
+boulanger/certificates_unix.sh
+.boulanger_context_cache
