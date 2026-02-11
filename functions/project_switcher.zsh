@@ -386,7 +386,7 @@ proj_list() {
         if [[ -d "$proj_path" ]]; then
             printf "  %-15s %s\n" "$proj_name" "$proj_path"
         else
-            printf "  %-15s %s \033[31m(manquant)\033[0m\n" "$proj_name" "$proj_path"
+            printf "  %-15s %s ${_ui_red}(manquant)${_ui_nc}\n" "$proj_name" "$proj_path"
         fi
     done < "$PROJ_REGISTRY_FILE"
 

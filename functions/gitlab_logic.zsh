@@ -66,11 +66,11 @@ load_gitlab_aliases
 
 # Fonction utilitaire pour lister les alias générés
 function list-gitlab-cmds() {
-    echo "\033[1;34mCommandes GitLab disponibles :\033[0m"
+    echo -e "${_ui_bold}${_ui_blue}Commandes GitLab disponibles :${_ui_nc}"
     for key in "${(@k)GITLAB_PROJECTS}"; do
         # On refait le parsing pour l'affichage
         parts=("${(@s/-/)key}")
-        echo "  \033[0;32mgc-${parts[2]}-${parts[1]}\033[0m -> Clone le groupe ${GITLAB_PROJECTS[$key]}"
+        echo -e "  ${_ui_green}gc-${parts[2]}-${parts[1]}${_ui_nc} -> Clone le groupe ${GITLAB_PROJECTS[$key]}"
     done | sort
 }
 
