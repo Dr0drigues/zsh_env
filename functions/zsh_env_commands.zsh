@@ -525,7 +525,7 @@ zsh-env-doctor() {
 
         # Dossier configs.d
         if [ -d "$HOME/.kube/configs.d" ]; then
-            local config_count=$(ls -1 "$HOME/.kube/configs.d"/*.yml "$HOME/.kube/configs.d"/*.yaml 2>/dev/null | wc -l | tr -d ' ')
+            local config_count=$(find "$HOME/.kube/configs.d" -maxdepth 1 -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null | wc -l | tr -d ' ')
             echo -e "  ${_zsh_cmd_cyan}i${_zsh_cmd_nc} $config_count config(s) additionnelle(s) dans configs.d/"
         fi
 
