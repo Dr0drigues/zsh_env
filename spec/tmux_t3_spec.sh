@@ -141,6 +141,7 @@ Describe "tmux_manager.zsh (T3 mocked)"
   Describe "tm-rename()"
     It "fails outside tmux"
       test_rename_no_tmux() {
+        tmux() { :; }  # mock so _tmux_check passes
         unset TMUX
         tm-rename "newname"
       }
