@@ -15,31 +15,31 @@
 
 ## Chargement (rc.zsh)
 
-- [ ] T1: `rc.zsh` se source sans erreur
-- [ ] T1: Les modules desactives ne sont pas charges (`ZSH_ENV_MODULE_*=false`)
-- [ ] T1: Les fichiers manquants affichent un warning sur stderr
-- [ ] T1: `config.zsh` est source si present
+- [x] T1: `rc.zsh` se source sans erreur
+- [x] T1: Les modules desactives ne sont pas charges (`ZSH_ENV_MODULE_*=false`)
+- [x] T1: Les fichiers manquants affichent un warning sur stderr
+- [x] T1: `config.zsh` est source si present
 - [ ] T1: `~/.secrets` est source si present
-- [ ] T1: `SCRIPTS_DIR` est ajoute au PATH
-- [ ] T1: PATH est deduplique (`typeset -U PATH`)
+- [x] T1: `SCRIPTS_DIR` est ajoute au PATH
+- [x] T1: PATH est deduplique (`typeset -U PATH`)
 
 ## Variables (variables.zsh)
 
-- [ ] T1: `$WORK_DIR` est exporte
-- [ ] T1: `$SCRIPTS_DIR` est exporte
-- [ ] T1: `$HISTFILE` vaut `~/.zsh_history`
-- [ ] T1: `$HISTSIZE` vaut 50000
-- [ ] T1: `$SAVEHIST` vaut 50000
-- [ ] T1: `$SOPS_AGE_KEY_FILE` est exporte
-- [ ] T2: Les dossiers requis sont crees si manquants
+- [x] T1: `$WORK_DIR` est exporte
+- [x] T1: `$SCRIPTS_DIR` est exporte
+- [x] T1: `$HISTFILE` vaut `~/.zsh_history`
+- [x] T1: `$HISTSIZE` vaut 50000
+- [x] T1: `$SAVEHIST` vaut 50000
+- [x] T1: `$SOPS_AGE_KEY_FILE` est exporte
+- [x] T2: Les dossiers requis sont crees si manquants
 - [ ] T2: `mkdir` echoue gracieusement (message stderr, pas de crash)
 
 ## Lazy Loading (functions.zsh)
 
-- [ ] T1: Les fichiers non-lazy dans `functions/` sont sources
-- [ ] T1: `ai_context.zsh` et `ai_tokens.zsh` ne sont PAS sources au chargement
-- [ ] T1: Le stub `ai-context` est defini comme fonction
-- [ ] T1: Le stub `ai-tokens` est defini comme fonction
+- [x] T1: Les fichiers non-lazy dans `functions/` sont sources
+- [x] T1: `ai_context.zsh` et `ai_tokens.zsh` ne sont PAS sources au chargement
+- [x] T1: Le stub `ai-context` est defini comme fonction
+- [x] T1: Le stub `ai-tokens` est defini comme fonction
 - [ ] T2: Appeler `ai-context help` charge le vrai fichier et execute la commande
 - [ ] T2: Appeler `ai-tokens help` charge le vrai fichier et execute la commande
 - [ ] T2: Les stubs sont supprimes apres le premier appel
@@ -54,47 +54,47 @@
 
 ## Aliases (aliases.zsh)
 
-- [ ] T1: `gst` est alias de `git status`
-- [ ] T1: `gl` est alias de `git fetch --all; git pull`
-- [ ] T1: `gld` est alias de `git log --oneline --decorate --graph --all`
-- [ ] T1: `ls` utilise `eza` si disponible
-- [ ] T1: `ls` fonctionne sans `eza`
-- [ ] T1: `cat` est alias de `bat` si disponible
-- [ ] T1: `npmi` est alias de `npm install`
+- [x] T1: `gst` est alias de `git status`
+- [x] T1: `gl` est alias de `git fetch --all; git pull`
+- [x] T1: `gld` est alias de `git log --oneline --decorate --graph --all`
+- [x] T1: `ls` utilise `eza` si disponible
+- [x] T1: `ls` fonctionne sans `eza`
+- [x] T1: `cat` est alias de `bat` si disponible
+- [x] T1: `npmi` est alias de `npm install`
 - [ ] T2: `git-clean-branches` liste les branches mergees
-- [ ] T2: `git-clean-branches` exclut master/main/dev/develop/release/*
-- [ ] T2: `git-clean-branches` retourne 0 si aucune branche a supprimer
-- [ ] T1: `nci` utilise `/bin/rm` et non `rmi`
-- [ ] T1: `rm` utilise `trash` en mode interactif (si disponible)
+- [x] T1: `git-clean-branches` exclut master/main/dev/develop/release/*
+- [x] T1: `git-clean-branches` retourne 0 si aucune branche a supprimer
+- [x] T1: `nci` utilise `/bin/rm` et non `rmi`
+- [x] T1: `rm` utilise `trash` en mode interactif (si disponible)
 - [ ] T1: `rm` utilise le vrai `rm` en mode non-interactif
 
 ## Commandes zsh-env-*
 
-- [ ] T1: `zsh-env-list` affiche les outils installes avec version
-- [ ] T1: `zsh-env-list` marque les outils manquants
+- [x] T1: `zsh-env-list` affiche les outils installes avec version
+- [x] T1: `zsh-env-list` marque les outils manquants
 - [ ] T1: `zsh-env-doctor` retourne 0 si tout est OK
-- [ ] T1: `zsh-env-help` affiche l'aide
+- [x] T1: `zsh-env-help` affiche l'aide
 - [ ] T2: `zsh-env-theme list` liste les themes Starship
 - [ ] T2: `zsh-env-theme <nom>` applique un theme
-- [ ] T1: `zsh-env-status` affiche la configuration et les modules
+- [x] T1: `zsh-env-status` affiche la configuration et les modules
 
 ## Completions
 
-- [ ] T1: `zsh-env-completion-add` requiert nom et commande
+- [x] T1: `zsh-env-completion-add` requiert nom et commande
 - [ ] T2: `zsh-env-completion-add` ajoute une entree dans `completions.zsh`
 - [ ] T2: `zsh-env-completion-remove` supprime une entree
-- [ ] T2: `zsh-env-completion-remove` echoue si entree non trouvee
+- [x] T2: `zsh-env-completion-remove` echoue si entree non trouvee
 
 ## Fonctions utilitaires (utils.zsh)
 
-- [ ] T2: `mkcd` cree un dossier et y entre
-- [ ] T2: `mkcd` cree des dossiers imbriques
-- [ ] T1: `bak` requiert un argument
-- [ ] T2: `bak` cree une copie `.bak.TIMESTAMP`
-- [ ] T1: `cx` requiert un argument
-- [ ] T1: `cx` echoue si le fichier n'existe pas
-- [ ] T2: `cx` rend un fichier executable
-- [ ] T1: `trash` retourne 1 si aucune commande trash disponible
+- [x] T2: `mkcd` cree un dossier et y entre
+- [x] T2: `mkcd` cree des dossiers imbriques
+- [x] T1: `bak` requiert un argument
+- [x] T2: `bak` cree une copie `.bak.TIMESTAMP`
+- [x] T1: `cx` requiert un argument
+- [x] T1: `cx` echoue si le fichier n'existe pas
+- [x] T2: `cx` rend un fichier executable
+- [x] T1: `trash` retourne 1 si aucune commande trash disponible
 
 ## Extract (extract.zsh)
 
@@ -103,20 +103,20 @@
 - [ ] T2: `extract` decompresse `.tar.bz2`
 - [ ] T2: `extract` decompresse `.tar.xz`
 - [ ] T2: `extract` decompresse `.gz`
-- [ ] T1: `extract` echoue sur un format non supporte
-- [ ] T1: `extract` echoue sur un fichier inexistant
+- [x] T1: `extract` echoue sur un format non supporte
+- [x] T1: `extract` echoue sur un fichier inexistant
 
 ## Git Root (git_root.zsh)
 
-- [ ] T2: `gr` navigue a la racine du depot Git
-- [ ] T1: `gr` affiche une erreur hors d'un depot Git
+- [x] T2: `gr` navigue a la racine du depot Git
+- [x] T1: `gr` affiche une erreur hors d'un depot Git
 
 ## Git Change Author (git_change_author.zsh)
 
-- [ ] T1: `gc-author` requiert 3 arguments minimum
-- [ ] T1: `gc-author` affiche l'usage sans arguments
-- [ ] T1: `gc-author` utilise `HEAD~10..HEAD` comme plage par defaut
-- [ ] T1: `gc-author` accepte une plage personnalisee en 4eme argument
+- [x] T1: `gc-author` requiert 3 arguments minimum
+- [x] T1: `gc-author` affiche l'usage sans arguments
+- [x] T1: `gc-author` utilise `HEAD~10..HEAD` comme plage par defaut
+- [x] T1: `gc-author` accepte une plage personnalisee en 4eme argument
 - [ ] T3: `gc-author` prefere `git-filter-repo` si disponible
 - [ ] T3: `gc-author` cree un tag de backup avant reecriture
 
@@ -140,21 +140,21 @@
 
 ## SSH Manager (ssh_manager.zsh)
 
-- [ ] T2: `_ssh_list_hosts` parse le fichier ssh config
-- [ ] T2: `_ssh_list_hosts` ignore les wildcards (`*`, `?`)
-- [ ] T2: `_ssh_list_hosts` retourne les hosts tries
-- [ ] T2: `_ssh_get_host_info` extrait la configuration d'un host
-- [ ] T1: `ssh_select` echoue sans fichier config
+- [x] T2: `_ssh_list_hosts` parse le fichier ssh config
+- [x] T2: `_ssh_list_hosts` ignore les wildcards (`*`, `?`)
+- [x] T2: `_ssh_list_hosts` retourne les hosts tries
+- [x] T2: `_ssh_get_host_info` extrait la configuration d'un host
+- [x] T1: `ssh_select` echoue sans fichier config
 - [ ] T2: `ssh_select` filtre par pattern
 - [ ] T2: `ssh_list` affiche HostName et User
 - [ ] T2: `ssh_list` compte le total
-- [ ] T1: `ssh_info` requiert un argument
+- [x] T1: `ssh_info` requiert un argument
 - [ ] T2: `ssh_info` echoue pour un host inconnu
 - [ ] T2: `ssh_add` detecte les doublons
 - [ ] T2: `ssh_add` cree le fichier config si manquant (permissions 600)
 - [ ] T2: `ssh_add` ajoute l'entree au bon format
 - [ ] T2: `ssh_remove` cree un backup avant suppression
-- [ ] T1: `ssh_copy_key` echoue si la cle n'existe pas
+- [x] T1: `ssh_copy_key` echoue si la cle n'existe pas
 
 ## Tmux Manager (tmux_manager.zsh)
 
@@ -168,25 +168,25 @@
 
 ## Test Runner (test_runner.zsh)
 
-- [ ] T1: `trun` echoue sans `package.json`
-- [ ] T2: `trun` detecte jest dans package.json
-- [ ] T2: `trun` detecte vitest dans package.json
-- [ ] T2: `trun` detecte mocha dans package.json
-- [ ] T1: `trun -c` inclut le flag coverage
-- [ ] T1: `trun -v` active le mode verbose
+- [x] T1: `trun` echoue sans `package.json`
+- [x] T2: `trun` detecte jest dans package.json
+- [x] T2: `trun` detecte vitest dans package.json
+- [x] T2: `trun` detecte mocha dans package.json
+- [x] T1: `trun -c` inclut le flag coverage
+- [x] T1: `trun -v` active le mode verbose
 
 ## Project Switcher (project_switcher.zsh)
 
-- [ ] T2: `_proj_find_config` detecte `.proj`
-- [ ] T2: `_proj_find_config` detecte `.project.yml`
-- [ ] T2: `_proj_find_config` detecte `.project.yaml`
-- [ ] T1: `_proj_find_config` retourne 1 si aucun fichier trouve
-- [ ] T1: `_proj_get_value` parse une cle YAML simple
-- [ ] T1: `_proj_get_value` supprime les guillemets
+- [x] T2: `_proj_find_config` detecte `.proj`
+- [x] T2: `_proj_find_config` detecte `.project.yml`
+- [x] T2: `_proj_find_config` detecte `.project.yaml`
+- [x] T1: `_proj_find_config` retourne 1 si aucun fichier trouve
+- [x] T1: `_proj_get_value` parse une cle YAML simple
+- [x] T1: `_proj_get_value` supprime les guillemets
 - [ ] T2: `_proj_load_by_path` change le repertoire courant
 - [ ] T2: `_proj_load_by_path` verifie le proprietaire du fichier env ($UID)
 - [ ] T2: `_proj_load_by_path` refuse un fichier env avec mauvais proprietaire
-- [ ] T1: `_proj_load_by_path` ignore post_cmd en mode non-interactif
+- [x] T1: `_proj_load_by_path` ignore post_cmd en mode non-interactif
 - [ ] T2: `proj_add` cree le fichier registre
 - [ ] T2: `proj_add` detecte les chemins dupliques
 - [ ] T2: `proj_add` detecte les noms dupliques
@@ -194,25 +194,25 @@
 - [ ] T2: `proj_list` marque les dossiers manquants
 - [ ] T2: `proj_remove` supprime l'entree du registre
 - [ ] T2: `proj_init` cree un fichier `.proj` template
-- [ ] T1: `proj_init` echoue si `.proj` existe deja
+- [x] T1: `proj_init` echoue si `.proj` existe deja
 - [ ] T2: `proj_scan` detecte les dossiers `.git`
 - [ ] T2: `proj_scan` detecte `package.json`, `Cargo.toml`, `go.mod`
 - [ ] T2: `proj_scan` respecte la limite de profondeur
 
 ## Plugins (plugins.zsh)
 
-- [ ] T1: `plugins.zsh` se source sans erreur
-- [ ] T1: `ZSH_ENV_PLUGINS=()` vide ne cause pas d'erreur
-- [ ] T1: `_zsh_env_plugin_name` extrait le nom depuis `owner/repo`
-- [ ] T1: `_zsh_env_plugin_name` extrait le nom depuis une URL complete
-- [ ] T1: `_zsh_env_plugin_url` genere l'URL GitHub depuis `owner/repo`
-- [ ] T1: `_zsh_env_plugin_url` prefixe avec `ZSH_ENV_PLUGINS_ORG` si pas de `/`
-- [ ] T1: `_zsh_env_plugin_url` retourne l'URL telle quelle si `https://`
-- [ ] T2: `_zsh_env_find_plugin_file` detecte `*.plugin.zsh`
-- [ ] T2: `_zsh_env_find_plugin_file` detecte `init.zsh`
-- [ ] T2: `_zsh_env_find_plugin_file` detecte `<nom>.zsh`
-- [ ] T1: `zsh-plugin-install` sans argument affiche l'usage
-- [ ] T1: `zsh-plugin-remove` sans argument affiche l'usage
+- [x] T1: `plugins.zsh` se source sans erreur
+- [x] T1: `ZSH_ENV_PLUGINS=()` vide ne cause pas d'erreur
+- [x] T1: `_zsh_env_plugin_name` extrait le nom depuis `owner/repo`
+- [x] T1: `_zsh_env_plugin_name` extrait le nom depuis une URL complete
+- [x] T1: `_zsh_env_plugin_url` genere l'URL GitHub depuis `owner/repo`
+- [x] T1: `_zsh_env_plugin_url` prefixe avec `ZSH_ENV_PLUGINS_ORG` si pas de `/`
+- [x] T1: `_zsh_env_plugin_url` retourne l'URL telle quelle si `https://`
+- [x] T2: `_zsh_env_find_plugin_file` detecte `*.plugin.zsh`
+- [x] T2: `_zsh_env_find_plugin_file` detecte `init.zsh`
+- [x] T2: `_zsh_env_find_plugin_file` detecte `<nom>.zsh`
+- [x] T1: `zsh-plugin-install` sans argument affiche l'usage
+- [x] T1: `zsh-plugin-remove` sans argument affiche l'usage
 
 ## Docker (docker_utils.zsh)
 
@@ -233,66 +233,66 @@
 
 ## Auto-Update (auto_update.zsh)
 
-- [ ] T1: `_zsh_env_should_check_update` retourne 0 si frequence = 0
-- [ ] T1: `_zsh_env_should_check_update` retourne 0 si fichier timestamp absent
-- [ ] T1: `_zsh_env_should_check_update` retourne 0 apres N jours
-- [ ] T1: `_zsh_env_should_check_update` retourne 1 si check recent
+- [x] T1: `_zsh_env_should_check_update` retourne 0 si frequence = 0
+- [x] T1: `_zsh_env_should_check_update` retourne 0 si fichier timestamp absent
+- [x] T1: `_zsh_env_should_check_update` retourne 0 apres N jours
+- [x] T1: `_zsh_env_should_check_update` retourne 1 si check recent
 - [ ] T2: `_zsh_env_check_update` compare HEAD vs origin/main
-- [ ] T1: `zsh-env-status` affiche la version et les modules
+- [x] T1: `zsh-env-status` affiche la version et les modules
 
 ## Boulanger Context (boulanger_context.zsh)
 
-- [ ] T1: `_blg_cache_valid` retourne 1 si pas de fichier cache
-- [ ] T2: `_blg_cache_valid` retourne 0 si age < TTL
-- [ ] T2: `_blg_cache_valid` retourne 1 si age > TTL
-- [ ] T2: `_blg_cache_write` ecrit timestamp + valeur
-- [ ] T1: Cache TTL est configurable via `ZSH_ENV_BLG_CACHE_TTL`
-- [ ] T1: Timeout est configurable via `ZSH_ENV_BLG_TIMEOUT`
+- [x] T1: `_blg_cache_valid` retourne 1 si pas de fichier cache
+- [x] T2: `_blg_cache_valid` retourne 0 si age < TTL
+- [x] T2: `_blg_cache_valid` retourne 1 si age > TTL
+- [x] T2: `_blg_cache_write` ecrit timestamp + valeur
+- [x] T1: Cache TTL est configurable via `ZSH_ENV_BLG_CACHE_TTL`
+- [x] T1: Timeout est configurable via `ZSH_ENV_BLG_TIMEOUT`
 - [ ] T3: `_blg_test_nexus` utilise curl avec timeout
 - [ ] T3: `blg_is_context` utilise le cache si valide
-- [ ] T2: `blg_refresh` supprime le fichier cache
+- [x] T2: `blg_refresh` supprime le fichier cache
 
 ## Net Utils (net_utils.zsh)
 
-- [ ] T1: `port` requiert 2 arguments (host et port)
+- [x] T1: `port` requiert 2 arguments (host et port)
 - [ ] T3: `myip` utilise curl avec `--max-time 5`
 - [ ] T3: `myip` gere le timeout gracieusement
 
 ## GitLab Logic (gitlab_logic.zsh)
 
-- [ ] T1: Module skip si `ZSH_ENV_MODULE_GITLAB != true`
-- [ ] T1: Warning si `~/.gitlab_secrets` n'existe pas
+- [x] T1: Module skip si `ZSH_ENV_MODULE_GITLAB != true`
+- [x] T1: Warning si `~/.gitlab_secrets` n'existe pas
 
 ## Check Env Deps (check_env_deps.zsh)
 
-- [ ] T1: `check_env_health` verifie les outils core
-- [ ] T1: `check_env_health` marque les outils manquants
-- [ ] T1: `check_env_health` fournit la commande brew install
+- [x] T1: `check_env_health` verifie les outils core
+- [x] T1: `check_env_health` marque les outils manquants
+- [x] T1: `check_env_health` fournit la commande brew install
 
 ## Scripts GitLab
 
-- [ ] T1: `trigger-jobs.sh --help` affiche l'aide (exit 0)
-- [ ] T1: `trigger-jobs.sh` echoue sans GITLAB_TOKEN (exit 1)
-- [ ] T1: `trigger-jobs.sh` echoue sans argument -j (exit 1)
-- [ ] T1: `trigger-jobs.sh` echoue sans cible (-p/-P/-g) (exit 1)
-- [ ] T1: `clone-projects.sh --help` affiche l'aide (exit 0)
-- [ ] T1: `clone-projects.sh` echoue avec moins de 2 arguments (exit 1)
+- [x] T1: `trigger-jobs.sh --help` affiche l'aide (exit 0)
+- [x] T1: `trigger-jobs.sh` echoue sans GITLAB_TOKEN (exit 1)
+- [x] T1: `trigger-jobs.sh` echoue sans argument -j (exit 1)
+- [x] T1: `trigger-jobs.sh` echoue sans cible (-p/-P/-g) (exit 1)
+- [x] T1: `clone-projects.sh --help` affiche l'aide (exit 0)
+- [x] T1: `clone-projects.sh` echoue avec moins de 2 arguments (exit 1)
 
 ---
 
 ## Statistiques
 
-| Tier | Description | Cas | Difficulte |
-|------|-------------|-----|------------|
-| T1 | Unit tests (pas de deps) | ~85 | Facile |
-| T2 | Integration (git/fichiers) | ~75 | Moyen |
-| T3 | Mocks necessaires | ~30 | Avance |
-| **Total** | | **~190** | |
+| Tier | Description | Total | Implementes | Restants |
+|------|-------------|-------|-------------|----------|
+| T1 | Unit tests (pas de deps) | ~85 | **72** | ~13 |
+| T2 | Integration (git/fichiers) | ~75 | **22** | ~53 |
+| T3 | Mocks necessaires | ~30 | **0** | ~30 |
+| **Total** | | **~190** | **94** | **~96** |
 
-## Priorite d'implementation
+## Priorite d'implementation (restant)
 
-1. **T1** - Tous les tests unitaires (pas de setup complexe)
-2. **T2 critiques** - variables.zsh, functions.zsh, extract, utils, plugins
-3. **T2 securite** - security_audit, ssh_manager, project_switcher
-4. **T2 git** - git_root, git_hooks, git_change_author, aliases git
-5. **T3** - Docker, Kube, Tmux, NVM (necessite framework de mocking)
+1. **T1 restants** - rm non-interactif, secrets source, doctor, docker skip
+2. **T2 critiques** - extract decompression, completions add/remove, mkdir erreur
+3. **T2 securite** - security_audit (9 tests), ssh_manager (6 tests)
+4. **T2 projet** - project_switcher (10 tests), git_hooks (3 tests)
+5. **T3** - Docker, Kube, Tmux, NVM, Boulanger, myip (necessite framework de mocking)
