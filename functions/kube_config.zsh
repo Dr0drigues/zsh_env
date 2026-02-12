@@ -380,20 +380,23 @@ kube_encrypt() {
 # Azure AKS - Recuperation dynamique des credentials
 # ==============================================================================
 
-# Configuration des clusters Azure AKS
+# Configuration des clusters Azure AKS (surchargeable via config.zsh)
 # Format: "label:subscription:resource-group:cluster-name"
-_KUBE_AZ_CLUSTERS=(
-    # BLG
-    "blg-dev:sub-blg-caasplatform:rg-blg-caasplatform-dev-common-weu:aks-blg-caasplatform-dev-common-001"
-    "blg-qlf:sub-blg-caasplatform:rg-blg-caasplatform-qlf-common-weu:aks-blg-caasplatform-qlf-common-001"
-    "blg-pprd:sub-blg-caasplatform:rg-blg-caasplatform-pprd-common-weu:aks-blg-caasplatform-pprd-common-001"
-    "blg-prd:sub-blg-caasplatform:rg-blg-caasplatform-prd-common-weu:aks-blg-caasplatform-prd-common-001"
-    # EDT
-    "edt-dev:sub-edt-caasplatform:rg-edt-caasplatform-dev-common-weu:aks-edt-caasplatform-dev-common-001"
-    "edt-qlf:sub-edt-caasplatform:rg-edt-caasplatform-qlf-common-weu:aks-edt-caasplatform-qlf-common-001"
-    "edt-pprd:sub-edt-caasplatform:rg-edt-caasplatform-pprd-common-weu:aks-edt-caasplatform-pprd-common-001"
-    "edt-prd:sub-edt-caasplatform:rg-edt-caasplatform-prd-common-weu:aks-edt-caasplatform-prd-common-001"
-)
+# Definir ZSH_ENV_KUBE_AZ_CLUSTERS dans config.zsh pour personnaliser
+if [[ -z "${_KUBE_AZ_CLUSTERS+x}" ]]; then
+    _KUBE_AZ_CLUSTERS=(
+        # BLG
+        "blg-dev:sub-blg-caasplatform:rg-blg-caasplatform-dev-common-weu:aks-blg-caasplatform-dev-common-001"
+        "blg-qlf:sub-blg-caasplatform:rg-blg-caasplatform-qlf-common-weu:aks-blg-caasplatform-qlf-common-001"
+        "blg-pprd:sub-blg-caasplatform:rg-blg-caasplatform-pprd-common-weu:aks-blg-caasplatform-pprd-common-001"
+        "blg-prd:sub-blg-caasplatform:rg-blg-caasplatform-prd-common-weu:aks-blg-caasplatform-prd-common-001"
+        # EDT
+        "edt-dev:sub-edt-caasplatform:rg-edt-caasplatform-dev-common-weu:aks-edt-caasplatform-dev-common-001"
+        "edt-qlf:sub-edt-caasplatform:rg-edt-caasplatform-qlf-common-weu:aks-edt-caasplatform-qlf-common-001"
+        "edt-pprd:sub-edt-caasplatform:rg-edt-caasplatform-pprd-common-weu:aks-edt-caasplatform-pprd-common-001"
+        "edt-prd:sub-edt-caasplatform:rg-edt-caasplatform-prd-common-weu:aks-edt-caasplatform-prd-common-001"
+    )
+fi
 
 # Verifie les dependances Azure
 _kube_az_check_deps() {

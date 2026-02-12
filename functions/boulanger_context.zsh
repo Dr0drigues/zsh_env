@@ -6,11 +6,11 @@
 # Utilise les fonctions UI de ui.zsh
 # ==============================================================================
 
-# --- Configuration ---
-_BLG_NEXUS_URL="https://nexus.forge.tsc.azr.intranet"
+# --- Configuration (surchargeable via config.zsh) ---
+_BLG_NEXUS_URL="${ZSH_ENV_BLG_NEXUS_URL:-https://nexus.forge.tsc.azr.intranet}"
 _BLG_CACHE_FILE="${ZSH_ENV_DIR:-$HOME/.zsh_env}/.boulanger_context_cache"
-_BLG_CACHE_TTL=300  # 5 minutes en secondes
-_BLG_TIMEOUT=2      # Timeout en secondes pour le test
+_BLG_CACHE_TTL="${ZSH_ENV_BLG_CACHE_TTL:-300}"       # 5 minutes en secondes
+_BLG_TIMEOUT="${ZSH_ENV_BLG_TIMEOUT:-2}"              # Timeout en secondes pour le test
 
 # --- Fonctions internes ---
 
