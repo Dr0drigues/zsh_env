@@ -8,8 +8,8 @@
 # --- Configuration ---
 _WORK_NEXUS_URL=""
 _WORK_CACHE_FILE="${ZSH_ENV_DIR:-$HOME/.zsh_env}/.work_context_cache"
-_WORK_CACHE_TTL=300  # 5 minutes en secondes
-_WORK_TIMEOUT=2      # Timeout en secondes pour le test
+_WORK_CACHE_TTL=${ZSH_ENV_WORK_CACHE_TTL:-300}  # 5 minutes en secondes (configurable)
+_WORK_TIMEOUT=${ZSH_ENV_WORK_TIMEOUT:-2}        # Timeout en secondes pour le test (configurable)
 
 # --- Fonctions internes ---
 
