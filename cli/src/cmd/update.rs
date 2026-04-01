@@ -37,18 +37,31 @@ pub fn run(check_only: bool) {
         }
     }
 
-    // Compare HEAD vs origin/main
+    // Detect current branch and its remote counterpart
+    let current_branch = Command::new("git")
+        .args(["branch", "--show-current"])
+        .current_dir(&zsh_env_dir)
+        .output()
+        .ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|| "main".to_string());
+
+    let remote_ref = format!("origin/{}", current_branch);
+
+    // Compare HEAD vs remote
     let local_sha = git_rev_parse(&zsh_env_dir, "HEAD");
-    let remote_sha = git_rev_parse(&zsh_env_dir, "origin/main");
+    let remote_sha = git_rev_parse(&zsh_env_dir, &remote_ref);
 
     if local_sha == remote_sha {
-        println!("  {} Deja a jour", "✓".green());
+        println!("  {} Deja a jour ({})", "✓".green(), current_branch);
         return;
     }
 
     // Count commits behind
+    let range = format!("HEAD..{}", remote_ref);
     let behind = Command::new("git")
-        .args(["rev-list", "--count", "HEAD..origin/main"])
+        .args(["rev-list", "--count", &range])
         .current_dir(&zsh_env_dir)
         .output()
         .ok()
@@ -56,13 +69,20 @@ pub fn run(check_only: bool) {
         .map(|s| s.trim().to_string())
         .unwrap_or_else(|| "?".to_string());
 
+    if behind == "0" {
+        println!("  {} Deja a jour ({})", "✓".green(), current_branch);
+        return;
+    }
+
     println!(
-        "  {} {} commit(s) en retard",
+        "  {} {} commit(s) en retard sur {}",
         "ℹ".cyan(),
-        behind.yellow()
+        behind.yellow(),
+        remote_ref
     );
 
     // Show recent commits from remote
+    let log_range = format!("HEAD..{}", remote_ref);
     let log = Command::new("git")
         .args([
             "log",
@@ -70,7 +90,7 @@ pub fn run(check_only: bool) {
             "--no-decorate",
             "-n",
             "5",
-            "HEAD..origin/main",
+            &log_range,
         ])
         .current_dir(&zsh_env_dir)
         .output()
@@ -98,7 +118,7 @@ pub fn run(check_only: bool) {
     // Pull
     print!("  Pull...  ");
     let pull = Command::new("git")
-        .args(["pull", "--quiet", "origin", "main"])
+        .args(["pull", "--quiet", "origin", &current_branch])
         .current_dir(&zsh_env_dir)
         .output();
 
