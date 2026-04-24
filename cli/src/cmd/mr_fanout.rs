@@ -211,6 +211,7 @@ pub fn run(args: MrFanoutArgs) {
     println!("{}", "─".repeat(60).dimmed());
     for t in &targets {
         let new_branch = format!("{}_{}_{}", prefix, t, slug);
+        let mr_title = format!("[{}] {}", env_label(t), title);
         println!(
             "  {} {} {} {}",
             "→".dimmed(),
@@ -218,6 +219,7 @@ pub fn run(args: MrFanoutArgs) {
             "as".dimmed(),
             new_branch.green()
         );
+        println!("    {} {}", "MR:".dimmed(), mr_title.bold());
     }
     println!("{}", "─".repeat(60).dimmed());
 
@@ -280,6 +282,7 @@ pub fn run(args: MrFanoutArgs) {
             format!("→ {}", new_branch).dimmed()
         );
 
+        let mr_title = format!("[{}] {}", env_label(target), &title);
         let outcome = process_target(
             target,
             &new_branch,
@@ -288,7 +291,7 @@ pub fn run(args: MrFanoutArgs) {
             &patch_path,
             &head_sha,
             from_sha.as_deref(),
-            &title,
+            &mr_title,
             &description,
         );
 
@@ -760,6 +763,35 @@ fn select_targets_interactive(candidates: &[String]) -> Option<Vec<String>> {
     } else {
         Some(sel)
     }
+}
+
+/// Derive le label d'environnement depuis le nom de branche cible.
+/// Ex: devaz2 → DEV-UNSTABLE, qlfaz-b → QLF-B, ppaz → PREPROD
+fn env_label(branch: &str) -> String {
+    if branch == "devaz2" {
+        return "DEV-UNSTABLE".into();
+    }
+    if branch == "devaz" || branch == "dev" {
+        return "DEV".into();
+    }
+    if branch == "ppaz" || branch == "pprd" {
+        return "PREPROD".into();
+    }
+    if branch == "prodaz" || branch == "prod" {
+        return "PROD".into();
+    }
+    for prefix in &["qlfaz", "qlf"] {
+        if let Some(rest) = branch.strip_prefix(prefix) {
+            return if rest.is_empty() {
+                "QLF".into()
+            } else if let Some(suf) = rest.strip_prefix('-') {
+                format!("QLF-{}", suf.to_uppercase())
+            } else {
+                "QLF".into()
+            };
+        }
+    }
+    branch.to_uppercase()
 }
 
 fn resolve_description(args: &MrFanoutArgs, title: &str) -> String {
