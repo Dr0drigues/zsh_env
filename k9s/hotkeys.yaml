@@ -9,10 +9,6 @@ hotKeys:
     shortCut: Shift-D
     description: Deployments
     command: deployments
-  shift-s:
-    shortCut: Shift-S
-    description: Services
-    command: services
   shift-c:
     shortCut: Shift-C
     description: ConfigMaps
@@ -21,10 +17,6 @@ hotKeys:
     shortCut: Shift-E
     description: Events
     command: events
-  shift-n:
-    shortCut: Shift-N
-    description: Namespaces
-    command: namespaces
   shift-i:
     shortCut: Shift-I
     description: Ingresses
