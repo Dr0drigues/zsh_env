@@ -1153,6 +1153,11 @@ kube_k9s_setup() {
     k9s_dir=$(_k9s_config_dir)
     mkdir -p "$k9s_dir/skins"
 
+    # Creer le dossier plugins Homebrew pour eviter l'erreur XDG sur macOS ARM
+    if [[ -d /opt/homebrew/share ]]; then
+        mkdir -p "/opt/homebrew/share/k9s/plugins"
+    fi
+
     _ui_header "k9s Setup"
 
     # Deployer hotkeys
