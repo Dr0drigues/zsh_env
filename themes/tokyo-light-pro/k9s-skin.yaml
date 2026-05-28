@@ -2,9 +2,9 @@
 # Skin k9s aligné sur la palette tokyo-light-pro (haut contraste)
 k9s:
   body:
-    fgColor: '#383e5d'
-    bgColor: '#f0eff5'
-    logoColor: '#004d60'
+    fgColor: '#d5d6db'
+    bgColor: '#343650'
+    logoColor: '#7eb8c4'
   prompt:
     fgColor: '#383e5d'
     bgColor: '#f0eff5'
@@ -23,12 +23,12 @@ k9s:
     fieldFgColor: '#383e5d'
   frame:
     border:
-      fgColor: '#969cb4'
-      focusColor: '#2e7de9'
+      fgColor: '#5a5e7a'
+      focusColor: '#5b9ef5'
     menu:
-      fgColor: '#383e5d'
-      keyColor: '#007a99'
-      numKeyColor: '#488348'
+      fgColor: '#d5d6db'
+      keyColor: '#7eb8c4'
+      numKeyColor: '#7cad7c'
     crumbs:
       fgColor: '#f0eff5'
       bgColor: '#2e7de9'
@@ -43,11 +43,11 @@ k9s:
       killColor: '#8f4961'
       completedColor: '#7669d6'
     title:
-      fgColor: '#005f7a'
-      bgColor: '#f0eff5'
-      highlightColor: '#6c4f00'
-      counterColor: '#488348'
-      filterColor: '#7669d6'
+      fgColor: '#a0d4e8'
+      bgColor: '#343650'
+      highlightColor: '#e8c06a'
+      counterColor: '#7cad7c'
+      filterColor: '#b0a8e8'
   views:
     charts:
       bgColor: '#f0eff5'
