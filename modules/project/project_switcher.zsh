@@ -120,7 +120,7 @@ _proj_load_by_path() {
     # Session tmux
     if [[ -n "$tmux_session" ]] && command -v tmux &> /dev/null; then
         if [[ -z "$TMUX" ]]; then
-            echo "  Tmux: utilisez 'tm $tmux_session' pour la session dediee"
+            echo "  Tmux: utilisez 'tmux new -s $tmux_session' pour la session dediee"
         fi
     fi
 
